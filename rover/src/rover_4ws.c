@@ -20,7 +20,7 @@ Rover_Error_t Rover4ws_SetSpeed(const Rover_MetersPerSecond_t speed, const Rover
 
     double radius              = kRover4wsConfig_HalfWheelbase / tan(steering_angle);
     double left_angular_speed  = (speed * (2 - (kRover4wsConfig_Tread / radius))) / kRover4wsConfig_DoubleWheelRadius;
-    double right_angular_speed = (speed * (2 - (kRover4wsConfig_Tread / radius))) / kRover4wsConfig_DoubleWheelRadius;
+    double right_angular_speed = (speed * (2 + (kRover4wsConfig_Tread / radius))) / kRover4wsConfig_DoubleWheelRadius;
 
     /* TODO convert angular speed to PWM */
 
@@ -41,7 +41,7 @@ Rover_Error_t Rover4ws_SetSteeringAngle(const Rover_Radian_t steering_angle)
     if ((BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_0], delta_left)) ||
         (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_1], delta_right)) ||
         (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_2], -delta_left)) ||
-        (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_3], -delta_left)))
+        (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_3], -delta_right)))
     {
         error = ROVER_ERROR_BSP;
     }

@@ -5,6 +5,7 @@
 
 typedef enum
 {
+    BSP_PWM_USER_TIMER_MOTORS,
     BSP_PWM_USER_TIMER_STEERING_SERVOS,
     BSP_PWM_USER_TIMER_MAX
 } BspPwmUser_Timer_t;

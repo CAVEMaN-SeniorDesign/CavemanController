@@ -159,6 +159,15 @@ set(BSP_INC_DIRS
 ################################################################################
 # CAVEMAN controller firmware
 ################################################################################
+set(ROVER_DIR ${CMAKE_SOURCE_DIR}/rover)
+set(ROVER_INC_DIR ${ROVER_DIR}/inc)
+set(ROVER_SRC_DIR ${ROVER_DIR}/src)
+
+set(ROVER_SRCS
+    ${ROVER_SRC_DIR}/rover_4ws.c
+    ${ROVER_SRC_DIR}/rover_4ws_config.c
+)
+
 set(CAVEMAN_CONTROLLER_DIR ${CMAKE_SOURCE_DIR}/caveman_controller)
 set(CAVEMAN_CONTROLLER_INC_DIR ${CAVEMAN_CONTROLLER_DIR}/inc)
 set(CAVEMAN_CONTROLLER_SRC_DIR ${CAVEMAN_CONTROLLER_DIR}/src)

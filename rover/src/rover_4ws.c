@@ -8,12 +8,6 @@
 #include "rover.h"
 #include "rover_4ws_config.h"
 
-extern const Rover_Meter_t     kRover4wsConfig_Tread;
-extern const Rover_Meter_t     kRover4wsConfig_HalfTread;
-extern const Rover_Meter_t     kRover4wsConfig_HalfWheelbase;
-extern const Rover_Meter_t     kRover4wsConfig_DoubleWheelRadius;
-extern const BspServo_Handle_t Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_MAX];
-
 Rover_Error_t Rover4ws_SetSpeed(const Rover_MetersPerSecond_t speed, const Rover_Radian_t steering_angle)
 {
     Rover_Error_t error = ROVER_ERROR_NONE;

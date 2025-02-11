@@ -6,8 +6,6 @@
 #include "rover.h"
 #include "rover_camera_config.h"
 
-extern const BspServo_Handle_t RoverCamera_Servos[ROVER_CAMERA_CONFIG_SERVO_MAX];
-
 Rover_Error_t RoverCamera_Pan(const Rover_Radian_t pan_angle)
 {
     Rover_Error_t error = ROVER_ERROR_NONE;

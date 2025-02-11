@@ -5,8 +5,6 @@
 #include "bsp.h"
 #include "bsp_uart_user.h"
 
-extern Bsp_UartHandle_t *BspUartUser_HandleTable[BSP_UART_USER_MAX];
-
 Bsp_Error_t BspUart_Transmit(const BspUartUser_Uart_t uart, const uint8_t *const data, const size_t size)
 {
     Bsp_Error_t error = BSP_ERROR_NULL;

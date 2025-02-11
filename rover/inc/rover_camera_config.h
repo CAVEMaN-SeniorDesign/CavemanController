@@ -10,4 +10,6 @@ typedef enum
     ROVER_CAMERA_CONFIG_SERVO_MAX
 } RoverCameraConfig_Servo_t;
 
+extern const BspServo_Handle_t RoverCamera_Servos[ROVER_CAMERA_CONFIG_SERVO_MAX];
+
 #endif /* ROVER_CAMERA_CONFIG_H */

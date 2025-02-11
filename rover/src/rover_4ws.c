@@ -2,6 +2,7 @@
 
 #include "math.h"
 
+#include "bsp.h"
 #include "bsp_servo.h"
 
 #include "rover.h"
@@ -11,7 +12,7 @@ extern const Rover_Meter_t     kRover4wsConfig_Tread;
 extern const Rover_Meter_t     kRover4wsConfig_HalfTread;
 extern const Rover_Meter_t     kRover4wsConfig_HalfWheelbase;
 extern const Rover_Meter_t     kRover4wsConfig_DoubleWheelRadius;
-extern const BspServo_Handle_t Rover4wsConfig_Servos[ROVER4WS_CONFIG_SERVO_MAX];
+extern const BspServo_Handle_t Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_MAX];
 
 Rover_Error_t Rover4ws_SetSpeed(const Rover_MetersPerSecond_t speed, const Rover_Radian_t steering_angle)
 {
@@ -37,10 +38,10 @@ Rover_Error_t Rover4ws_SetSteeringAngle(const Rover_Radian_t steering_angle)
     double delta_left  = atan(scaled_wheelbase / (kRover4wsConfig_HalfWheelbase - offset));
     double delta_right = atan(scaled_wheelbase / (kRover4wsConfig_HalfWheelbase + offset));
 
-    if ((BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER4WS_CONFIG_SERVO_0], delta_left)) ||
-        (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER4WS_CONFIG_SERVO_1], delta_right)) ||
-        (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER4WS_CONFIG_SERVO_2], -delta_left)) ||
-        (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER4WS_CONFIG_SERVO_3], -delta_left)))
+    if ((BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_0], delta_left)) ||
+        (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_1], delta_right)) ||
+        (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_2], -delta_left)) ||
+        (BSP_ERROR_NONE != BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_3], -delta_left)))
     {
         error = ROVER_ERROR_BSP;
     }

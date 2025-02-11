@@ -35,7 +35,7 @@ Bsp_Error_t BspServo_SetDutyCycle(BspServo_Handle_t *const handle, const Bsp_Per
     return error;
 }
 
-Bsp_Error_t BspServo_SetAngle(BspServo_Handle_t *const handle, const double angle)
+Bsp_Error_t BspServo_SetAngle(BspServo_Handle_t *const handle, const Bsp_Radian_t angle)
 {
     Bsp_Error_t error = BSP_ERROR_NULL;
 

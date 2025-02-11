@@ -8,6 +8,7 @@
 #define BSP_UNUSED(x) (void)(x)
 
 typedef double   Bsp_Percent_t;
+typedef double   Bsp_Radian_t;
 typedef uint32_t Bsp_Millisecond_t;
 typedef uint32_t Bsp_Microsecond_t;
 

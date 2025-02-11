@@ -4,6 +4,8 @@
 #include "bsp_pwm_user.h"
 #include "bsp_servo.h"
 
+#define ROVER_4WS_CONFIG_DEG_TO_RAD (double)(3.14159265358979323846 / 180.0)
+
 const Rover_Meter_t kRover4wsConfig_Tread       = 0.493800;
 const Rover_Meter_t kRover4wsConfig_Wheelbase   = 0.466028;
 const Rover_Meter_t kRover4wsConfig_WheelRadius = 0.080000;
@@ -19,7 +21,7 @@ BspServo_Handle_t Rover4wsConfig_Servos[ROVER4WS_CONFIG_SERVO_MAX] = {
         .minimum_duty_cycle = 0,
         .maximum_duty_cycle = 0.125,
         .minimum_angle      = 0,
-        .maximum_angle      = 120,
+        .maximum_angle      = 120 * ROVER_4WS_CONFIG_DEG_TO_RAD,
     },
     [ROVER4WS_CONFIG_SERVO_1] = {
         .timer              = BSP_PWM_USER_TIMER_STEERING_SERVOS,
@@ -27,7 +29,7 @@ BspServo_Handle_t Rover4wsConfig_Servos[ROVER4WS_CONFIG_SERVO_MAX] = {
         .minimum_duty_cycle = 0,
         .maximum_duty_cycle = 0.125,
         .minimum_angle      = 0,
-        .maximum_angle      = 120,
+        .maximum_angle      = 120 * ROVER_4WS_CONFIG_DEG_TO_RAD,
     },
     [ROVER4WS_CONFIG_SERVO_2] = {
         .timer              = BSP_PWM_USER_TIMER_STEERING_SERVOS,
@@ -35,7 +37,7 @@ BspServo_Handle_t Rover4wsConfig_Servos[ROVER4WS_CONFIG_SERVO_MAX] = {
         .minimum_duty_cycle = 0,
         .maximum_duty_cycle = 0.125,
         .minimum_angle      = 0,
-        .maximum_angle      = 120,
+        .maximum_angle      = 120 * ROVER_4WS_CONFIG_DEG_TO_RAD,
     },
     [ROVER4WS_CONFIG_SERVO_3] = {
         .timer              = BSP_PWM_USER_TIMER_STEERING_SERVOS,
@@ -43,6 +45,6 @@ BspServo_Handle_t Rover4wsConfig_Servos[ROVER4WS_CONFIG_SERVO_MAX] = {
         .minimum_duty_cycle = 0,
         .maximum_duty_cycle = 0.125,
         .minimum_angle      = 0,
-        .maximum_angle      = 120,
+        .maximum_angle      = 120 * ROVER_4WS_CONFIG_DEG_TO_RAD,
     },
 };

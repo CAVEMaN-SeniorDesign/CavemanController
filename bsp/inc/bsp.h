@@ -9,8 +9,9 @@
 
 typedef double   Bsp_Percent_t;
 typedef double   Bsp_Radian_t;
+typedef double   Bsp_RadiansPerSecond_t;
 typedef uint32_t Bsp_Millisecond_t;
-typedef uint32_t Bsp_Microsecond_t;
+typedef uint64_t Bsp_Microsecond_t;
 
 typedef TIM_HandleTypeDef  Bsp_TimerHandle_t;
 typedef UART_HandleTypeDef Bsp_UartHandle_t;
@@ -31,11 +32,11 @@ typedef enum
     BSP_TIMER_CHANNEL_1 = TIM_CHANNEL_1,
     BSP_TIMER_CHANNEL_2 = TIM_CHANNEL_2,
     BSP_TIMER_CHANNEL_3 = TIM_CHANNEL_3,
-    BSP_TIMER_CHANNEL_4 = TIM_CHANNEL_4
+    BSP_TIMER_CHANNEL_4 = TIM_CHANNEL_4,
+    BSP_TIMER_CHANNEL_ALL = TIM_CHANNEL_ALL
 } Bsp_TimerChannel_t;
 
 void Bsp_Initialize(void);
-Bsp_Millisecond_t Bsp_GetTick(void);
 
 /* TODO util functions such map and delay? */
 

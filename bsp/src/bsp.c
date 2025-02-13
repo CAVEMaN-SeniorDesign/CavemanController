@@ -3,7 +3,6 @@
 #include <stdint.h>
 
 #include "gpio.h"
-#include "stm32f4xx_hal.h"
 #include "tim.h"
 #include "usart.h"
 
@@ -27,12 +26,8 @@ void Bsp_Initialize(void)
     MX_TIM3_Init();
     MX_TIM4_Init();
     MX_TIM5_Init();
+    MX_TIM10_Init();
 
     BspLoggerUser_RegisterCustomLogger();
     BSP_LOGGER_LOG_DEBUG(kBsp_LogTag, "Initialized");
-}
-
-Bsp_Millisecond_t Bsp_GetTick(void)
-{
-    return HAL_GetTick();
 }

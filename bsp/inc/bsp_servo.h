@@ -1,8 +1,8 @@
 #ifndef BSP_SERVO_H
 #define BSP_SERVO_H
 
-#include "bsp_pwm_user.h"
 #include "bsp.h"
+#include "bsp_pwm_user.h"
 
 typedef struct
 {

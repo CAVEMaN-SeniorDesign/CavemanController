@@ -5,8 +5,8 @@
 
 #include "stm32f4xx_hal.h"
 
-#include "bsp_pwm_user.h"
 #include "bsp.h"
+#include "bsp_pwm_user.h"
 
 #define BSP_PWM_MAX_PERIOD (Bsp_Microsecond_t)(UINT16_MAX)
 

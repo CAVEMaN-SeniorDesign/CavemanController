@@ -1,8 +1,8 @@
 #include "bsp_uart_user.h"
 
-#include "bsp.h"
+#include "usart.h"
 
-extern Bsp_UartHandle_t huart2;
+#include "bsp.h"
 
 Bsp_UartHandle_t *const BspUartUser_HandleTable[BSP_UART_USER_MAX] = {
     [BSP_UART_USER_LOG] = &huart2,

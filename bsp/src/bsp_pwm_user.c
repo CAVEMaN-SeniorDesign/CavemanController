@@ -1,10 +1,8 @@
 #include "bsp_pwm_user.h"
 
-#include "bsp.h"
+#include "tim.h"
 
-extern Bsp_TimerHandle_t htim1;
-extern Bsp_TimerHandle_t htim2;
-extern Bsp_TimerHandle_t htim4;
+#include "bsp.h"
 
 const BspPwmUser_TimerConfig_t BspPwmUser_TimerConfigTable[BSP_PWM_USER_TIMER_MAX] = {
     [BSP_PWM_USER_TIMER_MOTORS] = {

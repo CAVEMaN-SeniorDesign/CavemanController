@@ -17,6 +17,8 @@ Rover_Error_t Rover4ws_SetSpeed(const Rover_MetersPerSecond_t speed, const Rover
     double right_angular_speed = (speed * (2 + (kRover4wsConfig_Tread / radius))) / kRover4wsConfig_DoubleWheelRadius;
 
     /* TODO convert angular speed to PWM */
+    BSP_UNUSED(left_angular_speed);
+    BSP_UNUSED(right_angular_speed);
 
     return error;
 }

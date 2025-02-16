@@ -25,6 +25,7 @@ typedef enum
 typedef struct
 {
     Bsp_TimerHandle_t *timer_handle;
+    BspEncoderUser_Pulse_t pulses_per_period;
     double smoothing_factor; /* Exponential moving average smoothing factor, 0 < smoothing_factor < 1 */
     BspEncoderUser_Mode_t mode;
     union

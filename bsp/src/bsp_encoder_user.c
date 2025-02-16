@@ -7,7 +7,6 @@
 BspEncoderUser_Handle_t BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_MAX] = {
     [BSP_ENCODER_USER_TIMER_0] = {
         .timer_handle             = &htim3,
-        .pulses_per_period        = 65536,
         .smoothing_factor         = 0.5,
         .mode                     = BSP_ENCODER_USER_MODE_PULSES_PER_ROTATON,
         .pulses_per_rotation      = 753.2,
@@ -22,7 +21,6 @@ BspEncoderUser_Handle_t BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_MAX] =
     },
     [BSP_ENCODER_USER_TIMER_1] = {
         .timer_handle             = &htim5,
-        .pulses_per_period        = 65536,
         .smoothing_factor         = 0.5,
         .mode                     = BSP_ENCODER_USER_MODE_PULSES_PER_ROTATON,
         .pulses_per_rotation      = 753.2,

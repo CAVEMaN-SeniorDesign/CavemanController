@@ -6,6 +6,8 @@
 #include <stdint.h>
 
 #include "bsp.h"
+#include "bsp_encoder.h"
+#include "bsp_encoder_user.h"
 #include "bsp_logger.h"
 #include "bsp_pwm_user.h"
 #include "bsp_servo.h"
@@ -19,6 +21,7 @@ int main(void)
 {
     Bsp_Initialize();
     BspTick_Start();
+    BspEncoder_Start(BSP_ENCODER_USER_TIMER_0);
 
     BSP_LOGGER_LOG_DEBUG(kCaveman_LogTag, "Starting...");
 
@@ -88,6 +91,33 @@ int main(void)
     BSP_LOGGER_LOG_DEBUG(kCaveman_LogTag, "%u", (uint32_t)BspTick_GetMicroseconds());
 
     BSP_LOGGER_LOG_DEBUG(kCaveman_LogTag, "Done");
+
+    BspEncoderUser_Pulse_t pulses       = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].pulses;
+    Bsp_RadiansPerSecond_t angular_rate = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].angular_rate;
+    while (true)
+    {
+        bool updated = false;
+
+        BspEncoder_Sample(BSP_ENCODER_USER_TIMER_0);
+
+        if (BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].pulses != pulses)
+        {
+            pulses  = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].pulses;
+            updated = true;
+        }
+        // if (BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].angular_rate != angular_rate)
+        // {
+        //     angular_rate = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].angular_rate;
+        //     updated      = true;
+        // }
+
+        if (updated)
+        {
+            BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Pulses: %d, Angular rate (x1000): %d", (int32_t)pulses, (int32_t)(angular_rate * 1000));
+        }
+
+        HAL_Delay(1000);
+    }
 
     return 0;
 }

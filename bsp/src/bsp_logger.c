@@ -28,7 +28,7 @@ static const char *kBspLogger_AnsiColorLut[] = {
     BSP_LOGGER_ANSI_RED, BSP_LOGGER_ANSI_YELLOW, BSP_LOGGER_ANSI_GREEN, BSP_LOGGER_ANSI_BLUE, BSP_LOGGER_ANSI_PURPLE
 };
 
-static const char *kBspLogger_PrefixFormat  = "%s[%010u] %s: ";
+static const char *kBspLogger_PrefixFormat  = "%s[%010u] [%s] ";
 static const char *kBspLogger_PostfixFormat = "%s\r\n";
 
 static BspLogger_Mode_t  BspLogger_Mode  = BSP_LOGGER_MODE_PRINT;

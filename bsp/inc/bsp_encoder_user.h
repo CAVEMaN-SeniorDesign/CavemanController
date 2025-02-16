@@ -25,7 +25,6 @@ typedef enum
 typedef struct
 {
     Bsp_TimerHandle_t *timer_handle;
-    BspEncoderUser_Pulse_t pulses_per_period;
     double smoothing_factor; /* Exponential moving average smoothing factor, 0 < smoothing_factor < 1 */
     BspEncoderUser_Mode_t mode;
     union
@@ -39,8 +38,8 @@ typedef struct
     volatile BspEncoderUser_Period_t periods_elapsed;          /* Updated by interrupt */
     Bsp_Microsecond_t time;                                    /* Time when pulses were measured */
     BspEncoderUser_Pulse_t pulses;                             /* Pulse from most recent sample */
-    double raw_angular_rate;                                   /* Angular rate calculated from most recent sample */
-    double angular_rate;                                       /* Filtered angular rate */
+    Bsp_RadiansPerSecond_t raw_angular_rate;                   /* Angular rate calculated from most recent sample */
+    Bsp_RadiansPerSecond_t angular_rate;                       /* Filtered angular rate */
 } BspEncoderUser_Handle_t;
 
 extern BspEncoderUser_Handle_t BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_MAX];

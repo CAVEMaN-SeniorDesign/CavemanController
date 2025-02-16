@@ -7,7 +7,7 @@
 extern __IO uint32_t uwTick;
 extern void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle);
 
-static uint64_t BspTick_MicrosecondsElapsed = 0U;
+static volatile uint64_t BspTick_MicrosecondsElapsed = 0U;
 
 static void BspTick_TimerCallback(Bsp_TimerHandle_t *handle);
 

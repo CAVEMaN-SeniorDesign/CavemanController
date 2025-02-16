@@ -135,11 +135,15 @@ set(CORE_SRCS
 
 set(BSP_SRCS
     ${BSP_SRC_DIR}/bsp.c
+    ${BSP_SRC_DIR}/bsp_encoder.c
+    ${BSP_SRC_DIR}/bsp_encoder_user.c
     ${BSP_SRC_DIR}/bsp_logger.c
     ${BSP_SRC_DIR}/bsp_logger_user.c
     ${BSP_SRC_DIR}/bsp_pwm.c
     ${BSP_SRC_DIR}/bsp_pwm_user.c
     ${BSP_SRC_DIR}/bsp_servo.c
+    ${BSP_SRC_DIR}/bsp_tick.c
+    ${BSP_SRC_DIR}/bsp_tick_user.c
     ${BSP_SRC_DIR}/bsp_uart.c
     ${BSP_SRC_DIR}/bsp_uart_user.c
 )

@@ -3,7 +3,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: d3lta12/alpine-build-tools
+      image: d3lta12/arm-build-tools
     steps:
       - name: Checkout
         uses: actions/checkout@v4

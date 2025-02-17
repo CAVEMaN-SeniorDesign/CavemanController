@@ -92,8 +92,7 @@ int main(void)
 
     BSP_LOGGER_LOG_DEBUG(kCaveman_LogTag, "Done");
 
-    BspEncoderUser_Pulse_t pulses       = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].pulses;
-    Bsp_RadiansPerSecond_t angular_rate = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].angular_rate;
+    BspEncoderUser_Pulse_t pulses = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].pulses;
     while (true)
     {
         bool updated = false;
@@ -105,15 +104,10 @@ int main(void)
             pulses  = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].pulses;
             updated = true;
         }
-        // if (BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].angular_rate != angular_rate)
-        // {
-        //     angular_rate = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].angular_rate;
-        //     updated      = true;
-        // }
 
         if (updated)
         {
-            BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Pulses: %d, Angular rate (x1000): %d", (int32_t)pulses, (int32_t)(angular_rate * 1000));
+            BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Pulses: %d", (int32_t)pulses);
         }
 
         HAL_Delay(1000);

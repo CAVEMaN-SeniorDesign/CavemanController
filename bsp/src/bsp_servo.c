@@ -16,6 +16,18 @@ Bsp_Error_t BspServo_Start(BspServo_Handle_t *const handle)
     return error;
 }
 
+Bsp_Error_t BspServo_Stop(BspServo_Handle_t *const handle)
+{
+    Bsp_Error_t error = BSP_ERROR_NULL;
+
+    if (NULL != handle)
+    {
+        error = BspPwm_Stop(handle->timer, handle->channel);
+    }
+
+    return error;
+}
+
 Bsp_Error_t BspServo_SetDutyCycle(BspServo_Handle_t *const handle, const Bsp_Percent_t duty_cycle)
 {
     Bsp_Error_t error = BSP_ERROR_NULL;

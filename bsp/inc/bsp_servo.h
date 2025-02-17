@@ -15,6 +15,7 @@ typedef struct
 } BspServo_Handle_t;
 
 Bsp_Error_t BspServo_Start(BspServo_Handle_t *const handle);
+Bsp_Error_t BspServo_Stop(BspServo_Handle_t *const handle);
 Bsp_Error_t BspServo_SetDutyCycle(BspServo_Handle_t *const handle, const Bsp_Percent_t duty_cycle);
 Bsp_Error_t BspServo_SetAngle(BspServo_Handle_t *const handle, const Bsp_Radian_t angle);
 

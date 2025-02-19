@@ -37,7 +37,6 @@ typedef enum
 } Bsp_TimerChannel_t;
 
 void Bsp_Initialize(void);
-
-/* TODO util functions such map and delay? */
+double Bsp_Map(const double value, const double in_min, const double in_max, const double out_min, const double out_max);
 
 #endif /* BSP_H */

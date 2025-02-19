@@ -9,6 +9,7 @@
 #include "bsp_encoder.h"
 #include "bsp_encoder_user.h"
 #include "bsp_logger.h"
+#include "bsp_motor.h"
 #include "bsp_pwm.h"
 #include "bsp_pwm_user.h"
 #include "bsp_servo.h"
@@ -60,6 +61,21 @@ int main(void)
         .minimum_angle      = 0,
         .maximum_angle      = 180,
     };
+    BspMotor_Handle_t test_motor = {
+        .forward_phase.timer   = BSP_PWM_USER_TIMER_MOTORS,
+        .forward_phase.channel = BSP_TIMER_CHANNEL_1,
+        .reverse_phase.timer   = BSP_PWM_USER_TIMER_MOTORS,
+        .reverse_phase.channel = BSP_TIMER_CHANNEL_2,
+        .minimum_duty_cycle    = 0.0,
+        .maximum_duty_cycle    = 1.0,
+        .minimum_speed         = 0.0,
+        .maximum_speed         = 3.14159265, /* TODO determine max motor speed under load */
+        .direction             = BSP_MOTOR_DIRECTION_FORWARD,
+    };
+
+    BspMotor_Start(&test_motor);
+    BspMotor_SetDirection(&test_motor, BSP_MOTOR_DIRECTION_FORWARD);
+    BspMotor_SetDutyCycle(&test_motor, 0.0);
 
     HAL_Delay(2000);
 

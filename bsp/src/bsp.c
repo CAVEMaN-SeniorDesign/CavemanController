@@ -31,3 +31,19 @@ void Bsp_Initialize(void)
     BspLoggerUser_RegisterCustomLogger();
     BSP_LOGGER_LOG_DEBUG(kBsp_LogTag, "Initialized");
 }
+
+double Bsp_Map(const double value, const double in_min, const double in_max, const double out_min, const double out_max)
+{
+    double capped_value = value;
+
+    if (value < in_min)
+    {
+        capped_value = in_min;
+    }
+    if (value > in_max)
+    {
+        capped_value = in_max;
+    }
+
+    return (capped_value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}

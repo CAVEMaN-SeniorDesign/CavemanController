@@ -123,6 +123,7 @@ set(BSP_SRC_DIR ${BSP_DIR}/src)
 set(CORE_SRCS
     ${CORE_SRC_DIR}/main.c
     ${CORE_SRC_DIR}/gpio.c
+    ${CORE_SRC_DIR}/dma.c
     ${CORE_SRC_DIR}/tim.c
     ${CORE_SRC_DIR}/usart.c
     ${CORE_SRC_DIR}/stm32f4xx_it.c

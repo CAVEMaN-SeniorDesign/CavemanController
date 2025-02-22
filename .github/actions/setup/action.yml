@@ -17,5 +17,5 @@ runs:
         key: ${{ env.cache-name }}-${{ hashFiles('**/CMakeLists.txt', '**.cmake') }}
     - name: Generate CMake cache
       if: ${{ steps.cache-cmake.outputs.cache-hit != 'true' }}
-      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+      run: cmake --preset Debug
       shell: sh

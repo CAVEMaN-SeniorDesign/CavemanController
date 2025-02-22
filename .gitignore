@@ -10,9 +10,10 @@ startup_stm32*.s
 STM32*_FLASH.ld
 stm32*_flash.ld
 en.stm32*
-cmake
-CMakePresets.json
+cmake/*
+!cmake/toolchain.cmake
 hsperfdata_root
 
 # VS Code
-.vscode
+.vscode/*
+!.vscode/launch.json

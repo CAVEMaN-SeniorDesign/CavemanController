@@ -73,15 +73,6 @@ typedef struct
     Bsp_TimerChannel_t max_channel;
 } Bsp_PwmConfig_t;
 
-typedef struct
-{
-    Bsp_UartHandle_t *uart_handle;
-    uint8_t *tx_buffer;
-    size_t tx_buffer_size;
-    uint8_t *rx_buffer;
-    size_t rx_buffer_size;
-} Bsp_Uart_t;
-
 void Bsp_Initialize(void);
 double Bsp_Map(const double value, const double in_min, const double in_max, const double out_min, const double out_max);
 

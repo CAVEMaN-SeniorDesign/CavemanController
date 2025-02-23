@@ -10,8 +10,6 @@ typedef enum
     BSP_UART_USER_MAX
 } BspUartUser_Uart_t;
 
-extern Bsp_Uart_t BspUartUser_HandleTable[BSP_UART_USER_MAX];
-
-BspUartUser_Uart_t BspUartUser_GetUart(const Bsp_UartHandle_t *const uart_handle);
+extern Bsp_UartHandle_t *const BspUartUser_HandleTable[BSP_UART_USER_MAX];
 
 #endif /* BSP_UART_USER_H */

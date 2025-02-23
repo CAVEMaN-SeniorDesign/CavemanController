@@ -23,6 +23,7 @@ set(BSP_USER_SRCS
     ${BSP_USER_SRC_DIR}/bsp_pwm_user.c
     ${BSP_USER_SRC_DIR}/bsp_tick_user.c
     ${BSP_USER_SRC_DIR}/bsp_uart_user.c
+    ${BSP_USER_SRC_DIR}/bsp_user.c
 )
 
 set_source_files_properties(

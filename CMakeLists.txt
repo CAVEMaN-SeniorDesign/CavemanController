@@ -69,6 +69,13 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 ################################################################################
 # CI and tools
 ################################################################################
+get_target_property(BSP_USER_SRCS BspUser INTERFACE_SOURCES)
+get_target_property(BSP_USER_INC_DIRS BspUser INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(BSP_SRCS Bsp INTERFACE_SOURCES)
+get_target_property(BSP_INC_DIRS Bsp INTERFACE_INCLUDE_DIRECTORIES)
 set(TOOLS_DIR ${CMAKE_SOURCE_DIR}/tools)
+set(CPPCHECK_SOURCES ${BSP_SRCS} ${BSP_USER_SRCS} ${ROVER_SRCS} ${CAVEMAN_CONTROLLER_SRCS})
 include(${TOOLS_DIR}/cppcheck/cppcheck.cmake)
+set(UNCRUSTIFY_SOURCES ${CPPCHECK_SOURCES})
+set(UNCRUSTIFY_INC_DIRS ${BSP_INC_DIRS} ${BSP_USER_INC_DIRS} ${ROVER_INC_DIR} ${CAVEMAN_CONTROLLER_INC_DIR})
 include(${TOOLS_DIR}/uncrustify/uncrustify.cmake)

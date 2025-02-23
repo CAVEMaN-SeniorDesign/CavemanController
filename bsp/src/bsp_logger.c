@@ -110,9 +110,9 @@ static inline void BspLogger_Print(const char *const tag, const BspLogger_Level_
 
 static inline void BspLogger_Custom(const char *const tag, const BspLogger_Level_t level, const char *const format, va_list args)
 {
-    size_t bytes_written = 0U;
-    int64_t size = snprintf(BspLogger_CustomLogBuffer, BspLogger_CustomLogBufferSize, kBspLogger_PrefixFormat, kBspLogger_AnsiColorLut[level], BspTick_GetTick(), tag);
-    
+    size_t  bytes_written = 0U;
+    int64_t size          = snprintf(BspLogger_CustomLogBuffer, BspLogger_CustomLogBufferSize, kBspLogger_PrefixFormat, kBspLogger_AnsiColorLut[level], BspTick_GetTick(), tag);
+
     if ((size > 0L) && (size < BspLogger_CustomLogBufferSize))
     {
         bytes_written += (size_t)size;

@@ -6,7 +6,7 @@ runs:
     - name: STM32CubeMX Generate Code
       uses: docker://d3lta12/stm32cubemx-stm32f4
       with:
-        args: /bin/bash -c "cd bsp/boards/Nucleo-64 && /opt/STM32CubeMX/jre/bin/java -jar /opt/STM32CubeMX/STM32CubeMX -q Nucleo-64.script"
+        args: /bin/bash -c "cd bsp/boards/Nucleo-64/generated && /opt/STM32CubeMX/jre/bin/java -jar /opt/STM32CubeMX/STM32CubeMX -q Nucleo-64.script"
     - name: Cache CMake files
       id: cache-cmake
       uses: actions/cache@v4

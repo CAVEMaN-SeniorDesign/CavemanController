@@ -3,15 +3,15 @@ _build
 build
 
 # STM32CubeMX
-bsp/boards/*/cmake
-bsp/boards/*/CMake*
-bsp/boards/*/Core
-bsp/boards/*/Drivers
-bsp/boards/*/hsperfdata_root
-bsp/boards/*/.mxproject
-bsp/boards/*/startup_stm32*.s
-bsp/boards/*/STM32*_FLASH.ld
-bsp/boards/*/stm32*_flash.ld
+bsp/boards/*/generated/cmake
+bsp/boards/*/generated/CMake*
+bsp/boards/*/generated/Core
+bsp/boards/*/generated/Drivers
+bsp/boards/*/generated/hsperfdata_root
+bsp/boards/*/generated/.mxproject
+bsp/boards/*/generated/startup_stm32*.s
+bsp/boards/*/generated/STM32*_FLASH.ld
+bsp/boards/*/generated/stm32*_flash.ld
 
 # VS Code
 .vscode/*

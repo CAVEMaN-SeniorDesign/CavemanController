@@ -11,6 +11,6 @@ typedef enum
     BSP_PWM_USER_TIMER_MAX
 } BspPwmUser_Timer_t;
 
-extern const Bsp_PwmTimerConfig_t BspPwmUser_TimerConfigTable[BSP_PWM_USER_TIMER_MAX];
+extern const Bsp_PwmConfig_t BspPwmUser_TimerConfigTable[BSP_PWM_USER_TIMER_MAX];
 
 #endif /* BSP_PWM_USER_H */

@@ -13,7 +13,7 @@ static uint8_t BspUartUser_LogRxBuffer[BSP_UART_USER_BUFFER_SIZE];
 static uint8_t BspUartUser_CommsTxBuffer[BSP_UART_USER_BUFFER_SIZE];
 static uint8_t BspUartUser_CommsRxBuffer[BSP_UART_USER_BUFFER_SIZE];
 
-Bsp_UartBuffers_t BspUartUser_HandleTable[BSP_UART_USER_MAX] = {
+Bsp_Uart_t BspUartUser_HandleTable[BSP_UART_USER_MAX] = {
     [BSP_UART_USER_LOG] = {
         .uart_handle    = &huart2,
         .tx_buffer      = BspUartUser_LogTxBuffer,

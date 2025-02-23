@@ -65,13 +65,13 @@ typedef struct
     Bsp_EncoderPulse_t pulses;                             /* Pulse from most recent sample */
     Bsp_RadiansPerSecond_t raw_angular_rate;               /* Angular rate calculated from most recent sample */
     Bsp_RadiansPerSecond_t angular_rate;                   /* Filtered angular rate */
-} Bsp_EncoderHandle_t;
+} Bsp_Encoder_t;
 
 typedef struct
 {
     Bsp_TimerHandle_t *timer_handle;
     Bsp_TimerChannel_t max_channel;
-} Bsp_PwmTimerConfig_t;
+} Bsp_PwmConfig_t;
 
 typedef struct
 {
@@ -80,7 +80,7 @@ typedef struct
     size_t tx_buffer_size;
     uint8_t *rx_buffer;
     size_t rx_buffer_size;
-} Bsp_UartBuffers_t;
+} Bsp_Uart_t;
 
 void Bsp_Initialize(void);
 double Bsp_Map(const double value, const double in_min, const double in_max, const double out_min, const double out_max);

@@ -2,4 +2,4 @@
 
 #include "bsp.h"
 
-const Bsp_PwmTimerConfig_t BspPwmUser_TimerConfigTable[1U];
+const Bsp_PwmConfig_t BspPwmUser_TimerConfigTable[1U];

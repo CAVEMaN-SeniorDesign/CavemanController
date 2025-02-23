@@ -8,8 +8,8 @@ typedef enum
     BSP_ENCODER_USER_TIMER_MAX
 } BspEncoderUser_Timer_t;
 
-extern Bsp_EncoderHandle_t BspEncoderUser_HandleTable[1U];
+extern Bsp_Encoder_t BspEncoderUser_HandleTable[1U];
 
-Bsp_EncoderHandle_t *BspEncoderUser_GetEncoderHandle(const Bsp_TimerHandle_t *const timer_handle);
+Bsp_Encoder_t *BspEncoderUser_GetEncoderHandle(const Bsp_TimerHandle_t *const timer_handle);
 
 #endif /* BSP_ENCODER_USER_H */

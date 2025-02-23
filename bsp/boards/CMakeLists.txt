@@ -1,13 +1,20 @@
 cmake_minimum_required(VERSION 3.30)
 project(BspUser)
 
+################################################################################
 # STM32 HAL
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/generated/cmake/stm32cubemx)
+################################################################################
+if(NOT BOARD)
+    set(BOARD "CAVeBoard")
+endif()
+message("Board: " ${BOARD})
+set(BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${BOARD})
+add_subdirectory(${BOARD_DIR}/generated/cmake/stm32cubemx)
 
 ################################################################################
 # BSP User library
 ################################################################################
-set(BSP_USER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bsp_user)
+set(BSP_USER_DIR ${BOARD_DIR}/bsp_user)
 set(BSP_USER_INC_DIR ${BSP_USER_DIR}/inc)
 set(BSP_USER_SRC_DIR ${BSP_USER_DIR}/src)
 

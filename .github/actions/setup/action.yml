@@ -17,5 +17,5 @@ runs:
         key: ${{ env.cache-name }}-${{ hashFiles('**/CMakeLists.txt', '**.cmake') }}
     - name: Generate CMake cache
       if: ${{ steps.cache-cmake.outputs.cache-hit != 'true' }}
-      run: cmake --preset Debug
+      run: cmake --preset Nucleo-64_Debug
       shell: sh

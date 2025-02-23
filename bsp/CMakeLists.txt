@@ -1,5 +1,9 @@
 # STM32 HAL
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/stm32cubemx ${CMAKE_CURRENT_BINARY_DIR}/stm32cubemx) # Not recommended but necessary to include generate code in Bsp
+if(NOT BOARD)
+    set(BOARD "CAVeBoard")
+endif()
+message("Board: " ${BOARD})
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/${BOARD}/cmake/stm32cubemx)
 
 ################################################################################
 # BSP library
@@ -35,6 +39,9 @@ target_compile_definitions(Bsp
     INTERFACE
         $<$<CONFIG:Debug>:BSP_LOGGER>
         $<$<CONFIG:Debug>:BSP_LOGGER_USER_CUSTOM_LOGGER>
+        $<$<STREQUAL:${BOARD},"CAVeBoard">:BOARD_CAVEBOARD>
+        $<$<STREQUAL:${BOARD},"Nucleo-64">:BOARD_NUCLEO_64>
+        $<$<STREQUAL:${BOARD},"STM32-E407">:BOARD_STM32_E407>
 )
 
 target_include_directories(Bsp

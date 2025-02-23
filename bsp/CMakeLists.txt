@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.30)
 project(Bsp)
 
+# Set board
+if(NOT BOARD)
+    set(BOARD "CAVeBoard")
+endif()
+message("Board: " ${BOARD})
+
 # BSP User Library
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards)
 
@@ -34,9 +40,9 @@ target_compile_definitions(${PROJECT_NAME}
     INTERFACE
         $<$<CONFIG:Debug>:BSP_LOGGER>
         $<$<CONFIG:Debug>:BSP_LOGGER_USER_CUSTOM_LOGGER>
-        $<$<STREQUAL:${BOARD},"CAVeBoard">:BOARD_CAVEBOARD>
-        $<$<STREQUAL:${BOARD},"Nucleo-64">:BOARD_NUCLEO_64>
-        $<$<STREQUAL:${BOARD},"STM32-E407">:BOARD_STM32_E407>
+        $<$<STREQUAL:${BOARD},CAVeBoard>:BOARD_CAVEBOARD>
+        $<$<STREQUAL:${BOARD},Nucleo-64>:BOARD_NUCLEO_64>
+        $<$<STREQUAL:${BOARD},STM32-E407>:BOARD_STM32_E407>
 )
 
 target_include_directories(${PROJECT_NAME}

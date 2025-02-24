@@ -5,10 +5,11 @@
 
 typedef enum
 {
+    BSP_ENCODER_USER_TIMER_0,
     BSP_ENCODER_USER_TIMER_MAX
 } BspEncoderUser_Timer_t;
 
-extern Bsp_Encoder_t BspEncoderUser_HandleTable[1U];
+extern Bsp_Encoder_t BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_MAX];
 
 Bsp_Encoder_t *BspEncoderUser_GetEncoderHandle(const Bsp_TimerHandle_t *const timer_handle);
 

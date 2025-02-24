@@ -6,6 +6,7 @@
 #include "bsp_uart_user.h"
 
 extern void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle);
+// static void TestCallback(Bsp_UartHandle_t *uart_handle);
 
 Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart, void (*transmit_callback)(Bsp_UartHandle_t *handle), void (*receive_callback)(Bsp_UartHandle_t *handle))
 {
@@ -16,6 +17,7 @@ Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart, void (*transmit_callbac
         if (NULL != transmit_callback)
         {
             BspUartUser_HandleTable[uart]->TxCpltCallback = transmit_callback;
+            // BspUartUser_HandleTable[uart]->TxCpltCallback = TestCallback;
         }
 
         if (NULL != receive_callback)
@@ -68,3 +70,12 @@ Bsp_Error_t BspUart_Receive(const BspUartUser_Uart_t uart, uint8_t *const data, 
 
     return error;
 }
+
+// static void TestCallback(Bsp_UartHandle_t *uart_handle)
+// {
+//     static volatile int i = 0;
+//     if (BspUartUser_HandleTable[BSP_UART_USER_LOG] == uart_handle)
+//     {
+//         i++;
+//     }
+// }

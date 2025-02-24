@@ -28,12 +28,6 @@ set(BSP_SRCS
     ${BSP_SRC_DIR}/bsp_uart.c
 )
 
-set_source_files_properties(
-    ${BSP_SRCS}
-    PROPERTIES
-    COMPILE_OPTIONS "-Werror"
-)
-
 add_library(${PROJECT_NAME} INTERFACE)
 
 target_compile_definitions(${PROJECT_NAME}

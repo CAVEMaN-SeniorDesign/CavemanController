@@ -5,7 +5,7 @@
             "name": "Flash and Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/CavemanController.elf",
+            "program": "${workspaceFolder}/build/STM32-E407_Debug/CavemanController.elf",
             "MIMode": "gdb",
             "cwd": "${workspaceRoot}",
             "stopAtConnect": true,
@@ -20,7 +20,7 @@
                 },
                 {
                     "description": "Flash program",
-                    "text": "load ${workspaceFolder}/build/Debug/CavemanController.elf",
+                    "text": "load ${workspaceFolder}/build/STM32-E407_Debug/CavemanController.elf",
                     "ignoreFailures": false
                 },
                 {
@@ -34,7 +34,7 @@
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/CavemanController.elf",
+            "program": "${workspaceFolder}/build/STM32-E407_Debug/CavemanController.elf",
             "MIMode": "gdb",
             "cwd": "${workspaceRoot}",
             "stopAtConnect": true,

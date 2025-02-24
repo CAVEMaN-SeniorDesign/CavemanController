@@ -64,7 +64,7 @@ Bsp_Error_t BspUart_Transmit(const BspUartUser_Uart_t uart, const uint8_t *const
         uint32_t offset         = (uint32_t)((uint32_t)unlocked * buffer_size);
         uint8_t *buffer         = (uint8_t*)((uint32_t)BspUartUser_HandleTable[uart].tx_buffer + offset + BspUartUser_HandleTable[uart].tx_buffer_write_count[unlocked]);
 
-        /* TODO handle writing the reamining bytes */
+        /* TODO SD-235 handle writing the reamining bytes */
         if (size_remaining < write_count)
         {
             write_count = size_remaining;

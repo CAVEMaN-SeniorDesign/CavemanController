@@ -8,6 +8,7 @@
 #include "stm32f4xx_hal.h"
 
 #define BSP_UNUSED(x) (void)(x)
+#define BSP_UART_TX_BUFFERS 2U
 
 typedef double   Bsp_Percent_t;
 typedef double   Bsp_Radian_t;
@@ -19,6 +20,10 @@ typedef int32_t  Bsp_EncoderPeriod_t; /* Must not exceed 4 bytes for atomic read
 
 typedef TIM_HandleTypeDef  Bsp_TimerHandle_t;
 typedef UART_HandleTypeDef Bsp_UartHandle_t;
+
+typedef struct Bsp_Encoder   Bsp_Encoder_t;
+typedef struct Bsp_PwmConfig Bsp_PwmConfig_t;
+typedef struct Bsp_Uart      Bsp_Uart_t;
 
 typedef enum
 {
@@ -46,7 +51,7 @@ typedef enum
     BSP_ENCODER_USER_MODE_RADIANS_PER_PULSE
 } Bsp_EncoderMode_t;
 
-typedef struct
+struct Bsp_Encoder
 {
     Bsp_TimerHandle_t *timer_handle;
     Bsp_EncoderPulse_t pulses_per_period;
@@ -65,13 +70,26 @@ typedef struct
     Bsp_EncoderPulse_t pulses;                             /* Pulse from most recent sample */
     Bsp_RadiansPerSecond_t raw_angular_rate;               /* Angular rate calculated from most recent sample */
     Bsp_RadiansPerSecond_t angular_rate;                   /* Filtered angular rate */
-} Bsp_Encoder_t;
+};
 
-typedef struct
+struct Bsp_PwmConfig
 {
     Bsp_TimerHandle_t *timer_handle;
     Bsp_TimerChannel_t max_channel;
-} Bsp_PwmConfig_t;
+};
+
+struct Bsp_Uart
+{
+    Bsp_UartHandle_t *uart_handle;
+    uint8_t *tx_buffer;
+    uint32_t tx_buffer_size;
+    volatile bool tx_lock;
+    volatile bool txing;
+    volatile uint8_t tx_unlocked; /* 0 or 1 */
+    volatile uint32_t tx_buffer_write_count[BSP_UART_TX_BUFFERS];
+    void (*tx_callback)(Bsp_Uart_t *const uart);
+    void (*rx_callback)(Bsp_Uart_t *const uart);
+};
 
 void Bsp_Initialize(void);
 double Bsp_Map(const double value, const double in_min, const double in_max, const double out_min, const double out_max);

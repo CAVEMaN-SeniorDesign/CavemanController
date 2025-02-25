@@ -8,7 +8,7 @@
 #include "stm32f4xx_hal.h"
 
 #define BSP_UNUSED(x) (void)(x)
-#define BSP_UART_TX_BUFFERS 2U
+#define BSP_UART_DOUBLE_BUFFER_COUNT 2U
 
 typedef double   Bsp_Percent_t;
 typedef double   Bsp_Radian_t;
@@ -21,9 +21,10 @@ typedef int32_t  Bsp_EncoderPeriod_t; /* Must not exceed 4 bytes for atomic read
 typedef TIM_HandleTypeDef  Bsp_TimerHandle_t;
 typedef UART_HandleTypeDef Bsp_UartHandle_t;
 
-typedef struct Bsp_Encoder   Bsp_Encoder_t;
-typedef struct Bsp_PwmConfig Bsp_PwmConfig_t;
-typedef struct Bsp_Uart      Bsp_Uart_t;
+typedef struct Bsp_Encoder          Bsp_Encoder_t;
+typedef struct Bsp_PwmConfig        Bsp_PwmConfig_t;
+typedef struct Bsp_UartDoubleBuffer Bsp_UartDoubleBuffer_t;
+typedef struct Bsp_Uart             Bsp_Uart_t;
 
 typedef enum
 {
@@ -78,15 +79,22 @@ struct Bsp_PwmConfig
     Bsp_TimerChannel_t max_channel;
 };
 
+struct Bsp_UartDoubleBuffer
+{
+    uint8_t *buffer;
+    uint32_t half_buffer_size;
+    volatile bool writing;
+    volatile bool reading;
+    volatile uint8_t unlocked; /* 0 - write or 1 - read, numeric type because used as index */
+    volatile uint32_t write_count[BSP_UART_DOUBLE_BUFFER_COUNT];
+    volatile uint32_t read_count[BSP_UART_DOUBLE_BUFFER_COUNT];
+};
+
 struct Bsp_Uart
 {
     Bsp_UartHandle_t *uart_handle;
-    uint8_t *tx_buffer;
-    uint32_t tx_buffer_size;
-    volatile bool tx_lock;
-    volatile bool txing;
-    volatile uint8_t tx_unlocked; /* 0 or 1 */
-    volatile uint32_t tx_buffer_write_count[BSP_UART_TX_BUFFERS];
+    Bsp_UartDoubleBuffer_t tx_buffer;
+    Bsp_UartDoubleBuffer_t rx_buffer;
     void (*tx_callback)(Bsp_Uart_t *const uart);
     void (*rx_callback)(Bsp_Uart_t *const uart);
 };

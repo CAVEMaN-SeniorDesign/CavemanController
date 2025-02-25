@@ -249,7 +249,7 @@ static Bsp_Error_t BspUart_RxBufferStartWrite(Bsp_Uart_t *const uart, const uint
         uint8_t *buffer_write   = (uint8_t *)((uint32_t)double_buffer->buffer + offset + double_buffer->write_count[unlocked]);
         uint32_t bytes_to_write = size;
 
-        /* TODO handle truncated bytes */
+        /* TODO SD-235 handle truncated bytes */
         if (size_remaining < bytes_to_write)
         {
             bytes_to_write = size_remaining;
@@ -304,7 +304,7 @@ static Bsp_Error_t BspUart_TxBufferWrite(Bsp_Uart_t *const uart, const uint8_t *
         uint8_t *buffer_write   = (uint8_t *)((uint32_t)double_buffer->buffer + offset + double_buffer->write_count[unlocked]);
         uint32_t bytes_to_write = size;
 
-        /* TODO handle truncated bytes */
+        /* TODO SD-235 handle truncated bytes */
         if (size_remaining < bytes_to_write)
         {
             bytes_to_write = size_remaining;

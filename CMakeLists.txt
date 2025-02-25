@@ -15,6 +15,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 # Project with support for ASM and C languages
 project(CavemanController LANGUAGES C ASM)
 
+# CAVeTalk library
+include(${CMAKE_SOURCE_DIR}/CAVeTalk.cmake)
+
 ################################################################################
 # BSP library
 ################################################################################
@@ -52,6 +55,7 @@ set(CAVEMAN_CONTROLLER_SRC_DIR ${CAVEMAN_CONTROLLER_DIR}/src)
 
 set(CAVEMAN_CONTROLLER_SRCS
     ${CAVEMAN_CONTROLLER_SRC_DIR}/caveman_controller.c
+    ${CAVEMAN_CONTROLLER_SRC_DIR}/caveman_cavetalk.c
 )
 
 set_source_files_properties(
@@ -75,6 +79,7 @@ target_sources(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         Bsp
+        CAVeTalk-c
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

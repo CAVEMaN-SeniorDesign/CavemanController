@@ -19,8 +19,14 @@ Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart, void (*tx_callback)(Bsp
 
     if (uart < BSP_UART_USER_MAX)
     {
-        BspUartUser_HandleTable[uart].uart_handle->TxCpltCallback = BspUart_TxCallback;
-        BspUartUser_HandleTable[uart].uart_handle->RxCpltCallback = BspUart_RxCallback;
+        BspUartUser_HandleTable[uart].tx_lock     = false;
+        BspUartUser_HandleTable[uart].txing       = false;
+        BspUartUser_HandleTable[uart].tx_unlocked = 0U;
+
+        for (size_t i = 0; i < sizeof(BspUartUser_HandleTable[uart].tx_buffer_write_count); i++)
+        {
+            BspUartUser_HandleTable[uart].tx_buffer_write_count[i] = 0U;
+        }
 
         if (NULL != tx_callback)
         {
@@ -33,6 +39,8 @@ Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart, void (*tx_callback)(Bsp
         }
 
         /* TODO SD-234 error and abort callbacks */
+        BspUartUser_HandleTable[uart].uart_handle->TxCpltCallback = BspUart_TxCallback;
+        BspUartUser_HandleTable[uart].uart_handle->RxCpltCallback = BspUart_RxCallback;
 
         HAL_UART_MspInit(BspUartUser_HandleTable[uart].uart_handle);
     }

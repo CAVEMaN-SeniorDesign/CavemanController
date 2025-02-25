@@ -17,6 +17,10 @@
 #include "bsp_uart.h"
 #include "bsp_uart_user.h"
 
+#include "cave_talk.h"
+#include "caveman_cavetalk.h"
+#include "ooga_booga.pb.h"
+
 static const char *kCaveman_LogTag = "CAVEMAN";
 
 int main(void)
@@ -29,6 +33,9 @@ int main(void)
 
     HAL_Delay(10);
     BSP_LOGGER_LOG_DEBUG(kCaveman_LogTag, "Another Test log");
+
+    CavemanCaveTalk_Start();
+    CaveTalk_SpeakOogaBooga(&CavemanCaveTalk_Handle, cave_talk_Say_SAY_OOGA);
 
     while (true)
     {

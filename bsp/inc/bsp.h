@@ -97,8 +97,6 @@ struct Bsp_Uart
     uint8_t *rx_buffer;
     uint32_t rx_buffer_size;
     uint32_t read_pointer;
-    void (*tx_callback)(Bsp_Uart_t *const uart);
-    void (*rx_callback)(Bsp_Uart_t *const uart);
 };
 
 void Bsp_Initialize(void);

@@ -21,7 +21,7 @@ void Bsp_Initialize(void)
     BspUser_Initialize();
 
     /* Initialize custom logger */
-    BspUart_Start(BSP_UART_USER_LOG, NULL, NULL);
+    BspUart_Start(BSP_UART_USER_LOG);
     BspLoggerUser_RegisterCustomLogger();
     BSP_LOGGER_LOG_DEBUG(kBsp_LogTag, "Initialized");
 }

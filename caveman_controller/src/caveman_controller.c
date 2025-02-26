@@ -39,17 +39,12 @@ int main(void)
     // CavemanCaveTalk_Start();
     // CaveTalk_SpeakOogaBooga(&CavemanCaveTalk_Handle, cave_talk_Say_SAY_OOGA);
 
-    // BspUart_StartReceive(BSP_UART_USER_LOG, 10);
-
     while (true)
     {
-        size_t bytes_available = 0U;
-        BspUart_Available(BSP_UART_USER_LOG, &bytes_available);
-        if (bytes_available >= 10U)
+        size_t bytes_read = 0U;
+        BspUart_Receive(BSP_UART_USER_LOG, test_buffer, sizeof(test_buffer), &bytes_read);
+        if (bytes_read > 0U)
         {
-            size_t bytes_read = 0U;
-            BSP_LOGGER_LOG_DEBUG(kCaveman_LogTag, "Bytes received: %d", bytes_available);
-            BspUart_Read(BSP_UART_USER_LOG, test_buffer, 10, &bytes_read);
             BSP_LOGGER_LOG_DEBUG(kCaveman_LogTag, "Bytes read: %d", bytes_read);
         }
         HAL_Delay(1000);

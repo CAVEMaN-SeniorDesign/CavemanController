@@ -12,10 +12,10 @@ extern void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle);
 
 static void BspUart_TxCallback(Bsp_UartHandle_t *uart_handle);
 static void BspUart_RxCallback(Bsp_UartHandle_t *uart_handle);
-static Bsp_Error_t BspUart_RxBufferAvailable(Bsp_Uart_t *const uart, uint32_t *const bytes_available);
-static Bsp_Error_t BspUart_RxBufferRead(Bsp_Uart_t *const uart, uint8_t *const data, const uint32_t size, uint32_t *bytes_read);
-static Bsp_Error_t BspUart_RxBufferStartWrite(Bsp_Uart_t *const uart, const uint32_t size);
-static Bsp_Error_t BspUart_RxBufferWriteComplete(Bsp_Uart_t *const uart);
+// static Bsp_Error_t BspUart_RxBufferAvailable(Bsp_Uart_t *const uart, uint32_t *const bytes_available);
+// static Bsp_Error_t BspUart_RxBufferRead(Bsp_Uart_t *const uart, uint8_t *const data, const uint32_t size, uint32_t *bytes_read);
+// static Bsp_Error_t BspUart_RxBufferStartWrite(Bsp_Uart_t *const uart, const uint32_t size);
+// static Bsp_Error_t BspUart_RxBufferWriteComplete(Bsp_Uart_t *const uart);
 static Bsp_Error_t BspUart_TxBufferWrite(Bsp_Uart_t *const uart, const uint8_t *const data, const uint32_t size);
 static Bsp_Error_t BspUart_TxBufferStartRead(Bsp_Uart_t *const uart);
 static Bsp_Error_t BspUart_TxBufferReadComplete(Bsp_Uart_t *const uart);
@@ -29,7 +29,9 @@ Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart, void (*tx_callback)(Bsp
     if (uart < BSP_UART_USER_MAX)
     {
         (void)BspUart_ResetBuffer(&BspUartUser_HandleTable[uart].tx_buffer);
-        (void)BspUart_ResetBuffer(&BspUartUser_HandleTable[uart].rx_buffer);
+        // (void)BspUart_ResetBuffer(&BspUartUser_HandleTable[uart].rx_buffer);
+
+        BspUartUser_HandleTable[uart].read_pointer = 0U;
 
         if (NULL != tx_callback)
         {
@@ -46,6 +48,8 @@ Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart, void (*tx_callback)(Bsp
         BspUartUser_HandleTable[uart].uart_handle->RxCpltCallback = BspUart_RxCallback;
 
         HAL_UART_MspInit(BspUartUser_HandleTable[uart].uart_handle);
+
+        HAL_UART_Receive_DMA(BspUartUser_HandleTable[uart].uart_handle, BspUartUser_HandleTable[uart].rx_buffer, BspUartUser_HandleTable[uart].rx_buffer_size);
     }
 
     return error;
@@ -70,17 +74,20 @@ Bsp_Error_t BspUart_StartTransmit(const BspUartUser_Uart_t uart, const uint8_t *
     return error;
 }
 
-Bsp_Error_t BspUart_StartReceive(const BspUartUser_Uart_t uart, const size_t size)
-{
-    Bsp_Error_t error = BSP_ERROR_PERIPHERAL;
+// Bsp_Error_t BspUart_StartReceive(const BspUartUser_Uart_t uart, const size_t size)
+// {
+//     BSP_UNUSED(size);
 
-    if (uart < BSP_UART_USER_MAX)
-    {
-        error = BspUart_RxBufferStartWrite(&BspUartUser_HandleTable[uart], size);
-    }
+//     Bsp_Error_t error = BSP_ERROR_PERIPHERAL;
 
-    return error;
-}
+//     if (uart < BSP_UART_USER_MAX)
+//     {
+//         // error = BspUart_RxBufferStartWrite(&BspUartUser_HandleTable[uart], size);
+//         HAL_UART_Receive_DMA(BspUartUser_HandleTable[uart].uart_handle, BspUartUser_HandleTable[uart].rx_buffer.buffer, 10U);
+//     }
+
+//     return error;
+// }
 
 Bsp_Error_t BspUart_Available(const BspUartUser_Uart_t uart, size_t *const bytes_available)
 {
@@ -88,11 +95,15 @@ Bsp_Error_t BspUart_Available(const BspUartUser_Uart_t uart, size_t *const bytes
 
     if (uart < BSP_UART_USER_MAX)
     {
-        uint32_t bytes = 0U;
+        // uint32_t bytes = 0U;
 
-        error = BspUart_RxBufferAvailable(&BspUartUser_HandleTable[uart], &bytes);
+        // error = BspUart_RxBufferAvailable(&BspUartUser_HandleTable[uart], &bytes);
 
-        *bytes_available = (size_t)bytes;
+        // *bytes_available = (size_t)bytes;
+        // *bytes_available = (size_t)bytes_received;
+
+        uint32_t write_pointer = BspUartUser_HandleTable[uart].rx_buffer_size - BspUartUser_HandleTable[uart].uart_handle->hdmarx->Instance->NDTR;
+        *bytes_available = (size_t)((write_pointer - BspUartUser_HandleTable[uart].read_pointer) % BspUartUser_HandleTable[uart].rx_buffer_size);
     }
 
     return error;
@@ -111,11 +122,34 @@ Bsp_Error_t BspUart_Read(const BspUartUser_Uart_t uart, uint8_t *const data, con
     }
     else
     {
-        uint32_t bytes = 0U;
+        // uint32_t bytes = 0U;
 
-        error = BspUart_RxBufferRead(&BspUartUser_HandleTable[uart], data, size, &bytes);
+        // error = BspUart_RxBufferRead(&BspUartUser_HandleTable[uart], data, size, &bytes);
 
-        *bytes_read = (size_t)bytes;
+        // *bytes_read = (size_t)bytes;
+
+        uint32_t read_pointer = BspUartUser_HandleTable[uart].read_pointer;
+        uint32_t write_pointer = BspUartUser_HandleTable[uart].rx_buffer_size - BspUartUser_HandleTable[uart].uart_handle->hdmarx->Instance->NDTR;
+        *bytes_read = (size_t)((write_pointer - read_pointer) % BspUartUser_HandleTable[uart].rx_buffer_size);
+
+        if (*bytes_read > size)
+        {
+            *bytes_read = size;
+        }
+
+        if((read_pointer + *bytes_read) > BspUartUser_HandleTable[uart].rx_buffer_size)
+        {
+            uint32_t bytes_to_end = BspUartUser_HandleTable[uart].rx_buffer_size - read_pointer;
+            memcpy(data, (uint8_t*)((uint32_t)BspUartUser_HandleTable[uart].rx_buffer + read_pointer), bytes_to_end);
+            memcpy((uint8_t*)((uint32_t)data + bytes_to_end), BspUartUser_HandleTable[uart].rx_buffer, write_pointer);
+        }
+        else
+        {
+            memcpy(data, (uint8_t*)((uint32_t)BspUartUser_HandleTable[uart].rx_buffer + read_pointer), *bytes_read);
+        }
+
+        BspUartUser_HandleTable[uart].read_pointer += *bytes_read;
+        BspUartUser_HandleTable[uart].read_pointer %= BspUartUser_HandleTable[uart].rx_buffer_size;
     }
 
     return error;
@@ -143,150 +177,161 @@ static void BspUart_RxCallback(Bsp_UartHandle_t *uart_handle)
 
     if (NULL != uart)
     {
-        (void)BspUart_RxBufferWriteComplete(uart);
+        // (void)BspUart_RxBufferWriteComplete(uart);
 
-        if (NULL != uart->rx_callback)
-        {
-            uart->rx_callback(uart);
-        }
+        // if (NULL != uart->rx_callback)
+        // {
+        //     uart->rx_callback(uart);
+        // }
+        // bytes_received += 10;
     }
 }
 
-static Bsp_Error_t BspUart_RxBufferAvailable(Bsp_Uart_t *const uart, uint32_t *const bytes_available)
-{
-    Bsp_Error_t error = BSP_ERROR_NONE;
+// static Bsp_Error_t BspUart_RxBufferAvailable(Bsp_Uart_t *const uart, uint32_t *const bytes_available)
+// {
+//     Bsp_Error_t error = BSP_ERROR_NONE;
 
-    if ((NULL == uart) || (NULL == bytes_available))
-    {
-        error = BSP_ERROR_NULL;
-    }
-    else
-    {
-        Bsp_UartDoubleBuffer_t *double_buffer = &uart->rx_buffer;
+//     if ((NULL == uart) || (NULL == bytes_available))
+//     {
+//         error = BSP_ERROR_NULL;
+//     }
+//     else
+//     {
+//         Bsp_UartDoubleBuffer_t *double_buffer = &uart->rx_buffer;
 
-        double_buffer->reading = true;
+//         double_buffer->reading = true;
 
-        uint8_t locked = double_buffer->unlocked ^ 1U;
-        *bytes_available = double_buffer->write_count[locked] - double_buffer->read_count[locked];
+//         uint8_t locked = double_buffer->unlocked ^ 1U;
+//         *bytes_available = double_buffer->write_count[locked] - double_buffer->read_count[locked];
 
-        if ((0U == *bytes_available) && (!double_buffer->writing))
-        {
-            double_buffer->write_count[locked] = 0U;
-            double_buffer->read_count[locked]  = 0U;
+//         if ((0U == *bytes_available) && (!double_buffer->writing))
+//         {
+//             double_buffer->write_count[locked] = 0U;
+//             double_buffer->read_count[locked]  = 0U;
 
-            locked = BspUart_ToggleLockedBuffer(double_buffer);
+//             locked = BspUart_ToggleLockedBuffer(double_buffer);
 
-            *bytes_available = double_buffer->write_count[locked] - double_buffer->read_count[locked];
-        }
+//             *bytes_available = double_buffer->write_count[locked] - double_buffer->read_count[locked];
+//         }
 
-        double_buffer->reading = false;
-    }
+//         double_buffer->reading = false;
+//     }
 
-    return error;
-}
+//     return error;
+// }
 
-static Bsp_Error_t BspUart_RxBufferRead(Bsp_Uart_t *const uart, uint8_t *const data, const uint32_t size, uint32_t *bytes_read)
-{
-    Bsp_Error_t error = BSP_ERROR_NULL;
+// static Bsp_Error_t BspUart_RxBufferRead(Bsp_Uart_t *const uart, uint8_t *const data, const uint32_t size, uint32_t *bytes_read)
+// {
+//     Bsp_Error_t error = BSP_ERROR_NULL;
 
-    if ((NULL == uart) ||
-        (NULL == uart->rx_buffer.buffer) ||
-        (NULL == data) ||
-        (NULL == bytes_read))
-    {
-    }
-    else
-    {
-        /* Call available first to toggle locked buffer if necessary */
-        error = BspUart_RxBufferAvailable(uart, bytes_read);
+//     if ((NULL == uart) ||
+//         (NULL == uart->rx_buffer.buffer) ||
+//         (NULL == data) ||
+//         (NULL == bytes_read))
+//     {
+//     }
+//     else
+//     {
+//         /* Call available first to toggle locked buffer if necessary */
+//         error = BspUart_RxBufferAvailable(uart, bytes_read);
 
-        if (BSP_ERROR_NONE == error)
-        {
-            Bsp_UartDoubleBuffer_t *double_buffer = &uart->rx_buffer;
+//         if (BSP_ERROR_NONE == error)
+//         {
+//             Bsp_UartDoubleBuffer_t *double_buffer = &uart->rx_buffer;
 
-            double_buffer->reading = true;
+//             double_buffer->reading = true;
 
-            uint8_t              locked      = double_buffer->unlocked ^ 1U;
-            uint32_t             offset      = (uint32_t)((uint32_t)locked * double_buffer->half_buffer_size);
-            const uint8_t *const buffer_read = (uint8_t *)((uint32_t)double_buffer->buffer + offset + double_buffer->read_count[locked]);
+//             uint8_t              locked      = double_buffer->unlocked ^ 1U;
+//             uint32_t             offset      = (uint32_t)((uint32_t)locked * double_buffer->half_buffer_size);
+//             const uint8_t *const buffer_read = (uint8_t *)((uint32_t)double_buffer->buffer + offset + double_buffer->read_count[locked]);
 
-            if (*bytes_read > 0U)
-            {
-                if (*bytes_read > size)
-                {
-                    *bytes_read = size;
-                }
+//             if (*bytes_read > 0U)
+//             {
+//                 if (*bytes_read > size)
+//                 {
+//                     *bytes_read = size;
+//                 }
 
-                memcpy(data, buffer_read, *bytes_read);
-                double_buffer->read_count[locked] += *bytes_read;
-            }
+//                 memcpy(data, buffer_read, *bytes_read);
+//                 double_buffer->read_count[locked] += *bytes_read;
+//             }
 
-            double_buffer->reading = false;
-        }
-    }
+//             double_buffer->reading = false;
+//         }
+//     }
 
-    return error;
-}
+//     return error;
+// }
 
-static Bsp_Error_t BspUart_RxBufferStartWrite(Bsp_Uart_t *const uart, const uint32_t size)
-{
-    Bsp_Error_t error = BSP_ERROR_NONE;
+// static Bsp_Error_t BspUart_RxBufferStartWrite(Bsp_Uart_t *const uart, const uint32_t size)
+// {
+//     Bsp_Error_t error = BSP_ERROR_NONE;
 
-    if ((NULL == uart) || (NULL == uart->uart_handle) || (NULL == uart->rx_buffer.buffer))
-    {
-        error = BSP_ERROR_NULL;
-    }
-    else
-    {
-        Bsp_UartDoubleBuffer_t *double_buffer = &uart->rx_buffer;
+//     if ((NULL == uart) || (NULL == uart->uart_handle) || (NULL == uart->rx_buffer.buffer))
+//     {
+//         error = BSP_ERROR_NULL;
+//     }
+//     else
+//     {
+//         Bsp_UartDoubleBuffer_t *double_buffer = &uart->rx_buffer;
 
-        /* Critical section start */
-        double_buffer->writing = true;
+//         /* Critical section start */
+//         double_buffer->writing = true;
 
-        uint8_t  unlocked       = double_buffer->unlocked;
-        uint32_t offset         = (uint32_t)((uint32_t)unlocked * double_buffer->half_buffer_size);
-        uint32_t size_remaining = double_buffer->half_buffer_size - double_buffer->write_count[unlocked];
-        uint8_t *buffer_write   = (uint8_t *)((uint32_t)double_buffer->buffer + offset + double_buffer->write_count[unlocked]);
-        uint32_t bytes_to_write = size;
+//         uint8_t  unlocked       = double_buffer->unlocked;
+//         uint32_t offset         = (uint32_t)((uint32_t)unlocked * double_buffer->half_buffer_size);
+//         uint32_t size_remaining = double_buffer->half_buffer_size - double_buffer->write_count[unlocked];
+//         uint8_t *buffer_write   = (uint8_t *)((uint32_t)double_buffer->buffer + offset + double_buffer->write_count[unlocked]);
+//         uint32_t bytes_to_write = size;
 
-        /* TODO SD-235 handle truncated bytes */
-        if (size_remaining < bytes_to_write)
-        {
-            bytes_to_write = size_remaining;
-        }
+//         /* TODO SD-235 handle truncated bytes */
+//         if (size_remaining < bytes_to_write)
+//         {
+//             bytes_to_write = size_remaining;
+//         }
 
-        double_buffer->write_count[unlocked] += bytes_to_write;
+//         double_buffer->write_count[unlocked] += bytes_to_write;
 
-        if (bytes_to_write > 0U)
-        {
-            error = (Bsp_Error_t)HAL_UART_Receive_DMA(uart->uart_handle, buffer_write, double_buffer->write_count[unlocked]);
-        }
-    }
+//         if (bytes_to_write > 0U)
+//         {
+//             error = (Bsp_Error_t)HAL_UART_Receive_DMA(uart->uart_handle, buffer_write, double_buffer->write_count[unlocked]);
+//         }
+//     }
 
-    return error;
-}
+//     return error;
+// }
 
-static Bsp_Error_t BspUart_RxBufferWriteComplete(Bsp_Uart_t *const uart)
-{
-    Bsp_Error_t error = BSP_ERROR_NONE;
+// static Bsp_Error_t BspUart_RxBufferWriteComplete(Bsp_Uart_t *const uart)
+// {
+//     Bsp_Error_t error = BSP_ERROR_NONE;
 
-    if (NULL == uart)
-    {
-        error = BSP_ERROR_NULL;
-    }
-    else
-    {
-        /* Critical section end */
-        uart->rx_buffer.writing = false;
-    }
+//     if (NULL == uart)
+//     {
+//         error = BSP_ERROR_NULL;
+//     }
+//     else
+//     {
+//         /* Critical section end */
+//         uart->rx_buffer.writing = false;
 
-    return error;
-}
+//         uint8_t locked = uart->rx_buffer.unlocked ^ 1U;
+//         if ((!uart->rx_buffer.reading) && (uart->rx_buffer.read_count[locked] == uart->rx_buffer.write_count[locked]))
+//         {
+//             Bsp_UartDoubleBuffer_t *double_buffer = &uart->rx_buffer;
+
+//             double_buffer->write_count[locked] = 0U;
+//             double_buffer->read_count[locked]  = 0U;
+
+//             locked = BspUart_ToggleLockedBuffer(double_buffer);
+//         }
+//     }
+
+//     return error;
+// }
 
 static Bsp_Error_t BspUart_TxBufferWrite(Bsp_Uart_t *const uart, const uint8_t *const data, const uint32_t size)
 {
     Bsp_Error_t error = BSP_ERROR_NULL;
-
 
     if ((NULL == uart) || (NULL == uart->tx_buffer.buffer) || (NULL == data))
     {
@@ -388,7 +433,7 @@ static Bsp_Error_t BspUart_ResetBuffer(Bsp_UartDoubleBuffer_t *const double_buff
         double_buffer->reading  = false;
         double_buffer->unlocked = 0U;
 
-        for (size_t i = 0U; i < sizeof(double_buffer->write_count); i++)
+        for (size_t i = 0U; i < (sizeof(double_buffer->write_count) / sizeof(double_buffer->write_count[0])); i++)
         {
             double_buffer->write_count[i] = 0U;
             double_buffer->read_count[i]  = 0U;

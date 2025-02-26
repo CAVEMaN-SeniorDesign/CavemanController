@@ -94,7 +94,9 @@ struct Bsp_Uart
 {
     Bsp_UartHandle_t *uart_handle;
     Bsp_UartDoubleBuffer_t tx_buffer;
-    Bsp_UartDoubleBuffer_t rx_buffer;
+    uint8_t *rx_buffer;
+    uint32_t rx_buffer_size;
+    uint32_t read_pointer;
     void (*tx_callback)(Bsp_Uart_t *const uart);
     void (*rx_callback)(Bsp_Uart_t *const uart);
 };

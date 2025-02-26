@@ -31,19 +31,22 @@ Bsp_Uart_t BspUartUser_HandleTable[BSP_UART_USER_MAX] = {
                 0U, 0U
             },
         },
-        .rx_buffer = {
-            .buffer           = BspUartUser_LogRxBuffer,
-            .half_buffer_size = sizeof(BspUartUser_LogRxBuffer) >> 1U,
-            .writing          = false,
-            .reading          = false,
-            .unlocked         = 0U,
-            .write_count      = {
-                0U, 0U
-            },
-            .read_count = {
-                0U, 0U
-            },
-        },
+        // .rx_buffer = {
+        //     .buffer           = BspUartUser_LogRxBuffer,
+        //     .half_buffer_size = sizeof(BspUartUser_LogRxBuffer) >> 1U,
+        //     .writing          = false,
+        //     .reading          = false,
+        //     .unlocked         = 0U,
+        //     .write_count      = {
+        //         0U, 0U
+        //     },
+        //     .read_count = {
+        //         0U, 0U
+        //     },
+        // },
+        .rx_buffer = BspUartUser_LogRxBuffer,
+        .rx_buffer_size = (uint32_t)sizeof(BspUartUser_LogRxBuffer),
+        .read_pointer = 0U,
         .tx_callback = NULL,
         .rx_callback = NULL,
     },
@@ -62,19 +65,22 @@ Bsp_Uart_t BspUartUser_HandleTable[BSP_UART_USER_MAX] = {
                 0U, 0U
             },
         },
-        .rx_buffer = {
-            .buffer           = BspUartUser_CommsRxBuffer,
-            .half_buffer_size = sizeof(BspUartUser_CommsRxBuffer) >> 1U,
-            .writing          = false,
-            .reading          = false,
-            .unlocked         = 0U,
-            .write_count      = {
-                0U, 0U
-            },
-            .read_count = {
-                0U, 0U
-            },
-        },
+        // .rx_buffer = {
+        //     .buffer           = BspUartUser_CommsRxBuffer,
+        //     .half_buffer_size = sizeof(BspUartUser_CommsRxBuffer) >> 1U,
+        //     .writing          = false,
+        //     .reading          = false,
+        //     .unlocked         = 0U,
+        //     .write_count      = {
+        //         0U, 0U
+        //     },
+        //     .read_count = {
+        //         0U, 0U
+        //     },
+        // },
+        .rx_buffer = BspUartUser_CommsRxBuffer,
+        .rx_buffer_size = (uint32_t)sizeof(BspUartUser_CommsRxBuffer),
+        .read_pointer = 0U,
         .tx_callback = NULL,
         .rx_callback = NULL,
     }

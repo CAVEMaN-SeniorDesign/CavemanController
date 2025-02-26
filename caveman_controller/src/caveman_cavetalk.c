@@ -20,9 +20,9 @@ typedef enum
 } CavemanCaveTalk_Receive_t;
 
 static uint8_t                   CavemanCaveTalk_Buffer[CAVEMAN_CAVE_TALK_BUFFER_SIZE];
-static CavemanCaveTalk_Receive_t CavemanCaveTalk_LastReceive = CAVEMAN_CAVE_TALK_RECEIVE_HEADER;
+// static CavemanCaveTalk_Receive_t CavemanCaveTalk_LastReceive = CAVEMAN_CAVE_TALK_RECEIVE_HEADER;
 
-static void CavemanCaveTalk_RxCallback(Bsp_Uart_t *const uart);
+// static void CavemanCaveTalk_RxCallback(Bsp_Uart_t *const uart);
 static CaveTalk_Error_t CavemanCaveTalk_Send(const void *const data, const size_t size);
 static CaveTalk_Error_t CavemanCaveTalk_Receive(void *const data, const size_t size, size_t *const bytes_received);
 static CaveTalk_Error_t CavemanCaveTalk_Available(size_t *const bytes_available);
@@ -41,13 +41,13 @@ CaveTalk_Handle_t CavemanCaveTalk_Handle = {
 
 Bsp_Error_t CavemanCaveTalk_Start(void)
 {
-    Bsp_Error_t error = BspUart_Start(BSP_UART_USER_COMMS, NULL, CavemanCaveTalk_RxCallback);
+    Bsp_Error_t error = BspUart_Start(BSP_UART_USER_COMMS, NULL, NULL);
 
-    if (BSP_ERROR_NONE == error)
-    {
-        CavemanCaveTalk_LastReceive = CAVEMAN_CAVE_TALK_RECEIVE_HEADER;
-        error                       = BspUart_StartReceive(BSP_UART_USER_COMMS, CAVEMAN_CAVE_TALK_HEADER_SIZE);
-    }
+    // if (BSP_ERROR_NONE == error)
+    // {
+    //     CavemanCaveTalk_LastReceive = CAVEMAN_CAVE_TALK_RECEIVE_HEADER;
+    //     error                       = BspUart_StartReceive(BSP_UART_USER_COMMS, CAVEMAN_CAVE_TALK_HEADER_SIZE);
+    // }
 
     return error;
 }
@@ -67,27 +67,27 @@ static CaveTalk_Error_t CavemanCaveTalk_Available(size_t *const bytes_available)
     return CavemanCaveTalk_ConvertBspError(BspUart_Available(BSP_UART_USER_COMMS, bytes_available));
 }
 
-static void CavemanCaveTalk_RxCallback(Bsp_Uart_t *const uart)
-{
-    uint8_t length = CAVEMAN_CAVE_TALK_HEADER_SIZE;
+// static void CavemanCaveTalk_RxCallback(Bsp_Uart_t *const uart)
+// {
+//     uint8_t length = CAVEMAN_CAVE_TALK_HEADER_SIZE;
 
-    switch (CavemanCaveTalk_LastReceive)
-    {
-    case CAVEMAN_CAVE_TALK_RECEIVE_HEADER:
-        CavemanCaveTalk_LastReceive = CAVEMAN_CAVE_TALK_RECEIVE_PAYLOAD;
-        length                      = *(uint8_t*)((uint32_t)uart->rx_buffer.buffer +
-                                                  (uint32_t)((uint32_t)uart->rx_buffer.unlocked * uart->rx_buffer.half_buffer_size)
-                                                  + (uint32_t)uart->rx_buffer.write_count[uart->rx_buffer.unlocked] - 1U);
-        (void)BspUart_StartReceive(BSP_UART_USER_COMMS, (size_t)length);
-        break;
-    case CAVEMAN_CAVE_TALK_RECEIVE_PAYLOAD:
-        CavemanCaveTalk_LastReceive = CAVEMAN_CAVE_TALK_RECEIVE_HEADER;
-        (void)BspUart_StartReceive(BSP_UART_USER_COMMS, (size_t)length);
-        break;
-    default:
-        break;
-    }
-}
+//     switch (CavemanCaveTalk_LastReceive)
+//     {
+//     case CAVEMAN_CAVE_TALK_RECEIVE_HEADER:
+//         CavemanCaveTalk_LastReceive = CAVEMAN_CAVE_TALK_RECEIVE_PAYLOAD;
+//         length                      = *(uint8_t*)((uint32_t)uart->rx_buffer.buffer +
+//                                                   (uint32_t)((uint32_t)uart->rx_buffer.unlocked * uart->rx_buffer.half_buffer_size)
+//                                                   + (uint32_t)uart->rx_buffer.write_count[uart->rx_buffer.unlocked] - 1U);
+//         (void)BspUart_StartReceive(BSP_UART_USER_COMMS, (size_t)length);
+//         break;
+//     case CAVEMAN_CAVE_TALK_RECEIVE_PAYLOAD:
+//         CavemanCaveTalk_LastReceive = CAVEMAN_CAVE_TALK_RECEIVE_HEADER;
+//         (void)BspUart_StartReceive(BSP_UART_USER_COMMS, (size_t)length);
+//         break;
+//     default:
+//         break;
+//     }
+// }
 
 static CaveTalk_Error_t CavemanCaveTalk_ConvertBspError(const Bsp_Error_t bsp_error)
 {

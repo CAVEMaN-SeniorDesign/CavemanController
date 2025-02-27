@@ -6,8 +6,7 @@
 #include "bsp.h"
 #include "cave_talk.h"
 
-extern CaveTalk_Handle_t CavemanCaveTalk_Handle;
-
-Bsp_Error_t CavemanCaveTalk_Start(void);
+CaveTalk_Error_t CavemanCaveTalk_Start(void);
+void CavemanCaveTalk_Task(void);
 
 #endif /* CAVEMAN_CAVETALK_H */

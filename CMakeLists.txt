@@ -43,6 +43,7 @@ set(ROVER_INC_DIR ${ROVER_DIR}/inc)
 set(ROVER_SRC_DIR ${ROVER_DIR}/src)
 
 set(ROVER_SRCS
+    ${ROVER_SRC_DIR}/rover.c
     ${ROVER_SRC_DIR}/rover_4ws.c
     ${ROVER_SRC_DIR}/rover_4ws_config.c
     ${ROVER_SRC_DIR}/rover_camera.c
@@ -69,11 +70,13 @@ add_executable(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${CAVEMAN_CONTROLLER_INC_DIR}
+        ${ROVER_INC_DIR}
 )
 
 target_sources(${PROJECT_NAME}
     PRIVATE
         ${CAVEMAN_CONTROLLER_SRCS}
+        ${ROVER_SRCS}
 )
 
 target_link_libraries(${PROJECT_NAME}

@@ -24,6 +24,7 @@ static void Caveman_Initialize(void);
 int main(void)
 {
     Caveman_Initialize();
+    Rover_SetMode(ROVER_MODE_RUN);
 
     while (true)
     {

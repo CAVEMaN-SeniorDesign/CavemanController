@@ -19,34 +19,34 @@ BspServo_Handle_t Rover4wsConfig_Servos[ROVER_4WS_SERVO_MAX] = {
     [ROVER_4WS_SERVO_0] = {
         .timer              = BSP_PWM_USER_TIMER_STEERING_SERVOS,
         .channel            = BSP_TIMER_CHANNEL_1,
-        .minimum_duty_cycle = 0,
-        .maximum_duty_cycle = 0.125,
+        .minimum_duty_cycle = 0.027,
+        .maximum_duty_cycle = 0.1235,
         .minimum_angle      = 0,
-        .maximum_angle      = 120 * ROVER_DEGREES_TO_RADIANS,
+        .maximum_angle      = 180 * ROVER_DEGREES_TO_RADIANS,
     },
     [ROVER_4WS_SERVO_1] = {
         .timer              = BSP_PWM_USER_TIMER_STEERING_SERVOS,
         .channel            = BSP_TIMER_CHANNEL_2,
-        .minimum_duty_cycle = 0,
+        .minimum_duty_cycle = 0.028,
         .maximum_duty_cycle = 0.125,
         .minimum_angle      = 0,
-        .maximum_angle      = 120 * ROVER_DEGREES_TO_RADIANS,
+        .maximum_angle      = 180 * ROVER_DEGREES_TO_RADIANS,
     },
     [ROVER_4WS_SERVO_2] = {
         .timer              = BSP_PWM_USER_TIMER_STEERING_SERVOS,
         .channel            = BSP_TIMER_CHANNEL_3,
-        .minimum_duty_cycle = 0,
+        .minimum_duty_cycle = 0.0297,
         .maximum_duty_cycle = 0.125,
         .minimum_angle      = 0,
-        .maximum_angle      = 120 * ROVER_DEGREES_TO_RADIANS,
+        .maximum_angle      = 180 * ROVER_DEGREES_TO_RADIANS,
     },
     [ROVER_4WS_SERVO_3] = {
         .timer              = BSP_PWM_USER_TIMER_STEERING_SERVOS,
         .channel            = BSP_TIMER_CHANNEL_4,
-        .minimum_duty_cycle = 0,
-        .maximum_duty_cycle = 0.125,
+        .minimum_duty_cycle = 0.025,
+        .maximum_duty_cycle = 0.1203,
         .minimum_angle      = 0,
-        .maximum_angle      = 120 * ROVER_DEGREES_TO_RADIANS,
+        .maximum_angle      = 180 * ROVER_DEGREES_TO_RADIANS,
     },
 };
 
@@ -64,7 +64,7 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
         .minimum_speed      = 0.0,
-        .maximum_speed      = 1.0, /* TODO determine max motor speed under load */
+        .maximum_speed      = 2.0,
         .direction          = BSP_MOTOR_DIRECTION_FORWARD,
     },
     [ROVER_4WS_MOTOR_1] = {
@@ -80,7 +80,7 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
         .minimum_speed      = 0.0,
-        .maximum_speed      = 1.0, /* TODO determine max motor speed under load */
+        .maximum_speed      = 2.0,
         .direction          = BSP_MOTOR_DIRECTION_FORWARD,
     },
     [ROVER_4WS_MOTOR_2] = {
@@ -96,7 +96,7 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
         .minimum_speed      = 0.0,
-        .maximum_speed      = 1.0, /* TODO determine max motor speed under load */
+        .maximum_speed      = 2.0,
         .direction          = BSP_MOTOR_DIRECTION_FORWARD,
     },
     [ROVER_4WS_MOTOR_3] = {
@@ -112,7 +112,7 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
         .minimum_speed      = 0.0,
-        .maximum_speed      = 1.0, /* TODO determine max motor speed under load */
+        .maximum_speed      = 2.0,
         .direction          = BSP_MOTOR_DIRECTION_FORWARD,
     }
 };

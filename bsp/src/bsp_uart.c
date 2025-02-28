@@ -60,10 +60,11 @@ Bsp_Error_t BspUart_Transmit(const BspUartUser_Uart_t uart, const uint8_t *const
 
 Bsp_Error_t BspUart_Receive(const BspUartUser_Uart_t uart, uint8_t *const data, const size_t size, size_t *const bytes_read)
 {
-    Bsp_Error_t error = BSP_ERROR_NULL;
+    Bsp_Error_t error = BSP_ERROR_NONE;
 
     if ((NULL == data) || (NULL == bytes_read))
     {
+        error = BSP_ERROR_NULL;
     }
     else if (uart >= BSP_UART_USER_MAX)
     {

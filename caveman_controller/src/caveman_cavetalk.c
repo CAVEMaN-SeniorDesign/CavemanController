@@ -34,9 +34,8 @@ static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed,
 
 static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
     .link_handle = {
-        .send      = CavemanCaveTalk_Send,
-        .receive   = CavemanCaveTalk_Receive,
-        .available = NULL,
+        .send    = CavemanCaveTalk_Send,
+        .receive = CavemanCaveTalk_Receive,
     },
     .buffer           = CavemanCaveTalk_Buffer,
     .buffer_size      = sizeof(CavemanCaveTalk_Buffer),

@@ -45,7 +45,7 @@ static void Caveman_Initialize(void)
     Rover_Initialize();
     if (CAVE_TALK_ERROR_NONE != CavemanCaveTalk_Start())
     {
-        BSP_LOGGER_LOG_ERROR(kCaveman_LogTag, "Failed to start Rover");
+        BSP_LOGGER_LOG_ERROR(kCaveman_LogTag, "Failed to start CAVeTalk");
     }
     BSP_LOGGER_LOG_DEBUG(kCaveman_LogTag, "Initialized");
 

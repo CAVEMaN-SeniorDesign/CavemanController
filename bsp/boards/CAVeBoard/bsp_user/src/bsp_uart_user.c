@@ -17,7 +17,7 @@ static uint8_t BspUartUser_CommsRxBuffer[BSP_UART_USER_COMMS_BUFFER_SIZE];
 
 Bsp_Uart_t BspUartUser_HandleTable[BSP_UART_USER_MAX] = {
     [BSP_UART_USER_LOG] = {
-        .uart_handle = &huart1,
+        .uart_handle = &huart6,
         .tx_buffer   = {
             .buffer           = BspUartUser_LogTxBuffer,
             .half_buffer_size = sizeof(BspUartUser_LogTxBuffer) >> 1U,
@@ -36,7 +36,7 @@ Bsp_Uart_t BspUartUser_HandleTable[BSP_UART_USER_MAX] = {
         .read_pointer   = 0U,
     },
     [BSP_UART_USER_COMMS] = {
-        .uart_handle = &huart6,
+        .uart_handle = &huart1,
         .tx_buffer   = {
             .buffer           = BspUartUser_CommsTxBuffer,
             .half_buffer_size = sizeof(BspUartUser_CommsTxBuffer) >> 1U,

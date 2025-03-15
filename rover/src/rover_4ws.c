@@ -9,6 +9,8 @@
 #include "rover.h"
 #include "rover_4ws_config.h"
 
+#define ROVER_4WS_WHEEL_OFFSET (double)(3.14159265358979323846 / 2.0)
+
 static Rover_Error_t Rover4ws_SetSpeed(const Rover_MetersPerSecond_t speed, const Rover_Radian_t steering_angle);
 static Rover_Error_t Rover4ws_SetSteeringAngle(const Rover_Radian_t steering_angle);
 static inline Rover_Error_t Rover4ws_ErrorCheck(const Bsp_Error_t error_0,
@@ -88,6 +90,8 @@ Rover_Error_t Rover4ws_DisableSteering(void)
 
 Rover_Error_t Rover4ws_StartMotors(void)
 {
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+
     return Rover4ws_ErrorCheck(BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_0]),
                                BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_2]),
                                BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_1]),
@@ -96,6 +100,8 @@ Rover_Error_t Rover4ws_StartMotors(void)
 
 Rover_Error_t Rover4ws_StopMotors(void)
 {
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+
     return Rover4ws_ErrorCheck(BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_0]),
                                BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_2]),
                                BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_1]),
@@ -104,12 +110,18 @@ Rover_Error_t Rover4ws_StopMotors(void)
 
 Rover_Error_t Rover4ws_Drive(const Rover_MetersPerSecond_t speed, const Rover_RadiansPerSecond_t turn_rate)
 {
-    Rover_Radian_t steering_angle = atan((turn_rate * kRover4wsConfig_HalfWheelbase) / speed);
-    Rover_Error_t  error          = Rover4ws_SetSteeringAngle(steering_angle);
+    Rover_Error_t error = ROVER_ERROR_NONE;
 
-    if (ROVER_ERROR_NONE == error)
+    /* Check for divide by zero */
+    if (0.0 != speed)
     {
-        error = Rover4ws_SetSpeed(speed, steering_angle);
+        Rover_Radian_t steering_angle = atan((turn_rate * kRover4wsConfig_HalfWheelbase) / speed);
+        error = Rover4ws_SetSteeringAngle(steering_angle);
+
+        if (ROVER_ERROR_NONE == error)
+        {
+            error = Rover4ws_SetSpeed(speed, steering_angle);
+        }
     }
 
     return error;
@@ -171,10 +183,10 @@ static Rover_Error_t Rover4ws_SetSteeringAngle(const Rover_Radian_t steering_ang
     double delta_left  = atan(scaled_wheelbase / (kRover4wsConfig_HalfWheelbase - offset));
     double delta_right = atan(scaled_wheelbase / (kRover4wsConfig_HalfWheelbase + offset));
 
-    return Rover4ws_ErrorCheck(BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_SERVO_0], delta_left),
-                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_SERVO_1], delta_right),
-                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_SERVO_2], -delta_left),
-                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_SERVO_3], -delta_right));
+    return Rover4ws_ErrorCheck(BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_SERVO_0], (ROVER_4WS_WHEEL_OFFSET - delta_left)),
+                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_SERVO_1], (ROVER_4WS_WHEEL_OFFSET - delta_right)),
+                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_SERVO_2], (ROVER_4WS_WHEEL_OFFSET + delta_left)),
+                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_SERVO_3], (ROVER_4WS_WHEEL_OFFSET + delta_right)));
 }
 
 static inline Rover_Error_t Rover4ws_ErrorCheck(const Bsp_Error_t error_0,

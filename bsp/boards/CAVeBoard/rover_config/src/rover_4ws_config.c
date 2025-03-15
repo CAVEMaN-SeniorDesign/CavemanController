@@ -53,12 +53,12 @@ BspServo_Handle_t Rover4wsConfig_Servos[ROVER_4WS_SERVO_MAX] = {
 BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
     [ROVER_4WS_MOTOR_0] = {
         .forward_phase = {
-            .timer   = BSP_PWM_USER_TIMER_MOTORS_FORWARD,
+            .timer   = BSP_PWM_USER_TIMER_MOTORS_FRONT,
             .channel = BSP_TIMER_CHANNEL_1,
         },
         .reverse_phase = {
-            .timer   = BSP_PWM_USER_TIMER_MOTORS_REVERSE,
-            .channel = BSP_TIMER_CHANNEL_1,
+            .timer   = BSP_PWM_USER_TIMER_MOTORS_FRONT,
+            .channel = BSP_TIMER_CHANNEL_2,
         },
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
@@ -68,12 +68,12 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
     },
     [ROVER_4WS_MOTOR_1] = {
         .forward_phase = {
-            .timer   = BSP_PWM_USER_TIMER_MOTORS_FORWARD,
-            .channel = BSP_TIMER_CHANNEL_2,
+            .timer   = BSP_PWM_USER_TIMER_MOTORS_FRONT,
+            .channel = BSP_TIMER_CHANNEL_3,
         },
         .reverse_phase = {
-            .timer   = BSP_PWM_USER_TIMER_MOTORS_REVERSE,
-            .channel = BSP_TIMER_CHANNEL_2,
+            .timer   = BSP_PWM_USER_TIMER_MOTORS_FRONT,
+            .channel = BSP_TIMER_CHANNEL_4,
         },
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
@@ -83,12 +83,12 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
     },
     [ROVER_4WS_MOTOR_2] = {
         .forward_phase = {
-            .timer   = BSP_PWM_USER_TIMER_MOTORS_FORWARD,
-            .channel = BSP_TIMER_CHANNEL_3,
+            .timer   = BSP_PWM_USER_TIMER_MOTORS_REAR,
+            .channel = BSP_TIMER_CHANNEL_1,
         },
         .reverse_phase = {
-            .timer   = BSP_PWM_USER_TIMER_MOTORS_REVERSE,
-            .channel = BSP_TIMER_CHANNEL_3,
+            .timer   = BSP_PWM_USER_TIMER_MOTORS_REAR,
+            .channel = BSP_TIMER_CHANNEL_2,
         },
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
@@ -98,11 +98,11 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
     },
     [ROVER_4WS_MOTOR_3] = {
         .forward_phase = {
-            .timer   = BSP_PWM_USER_TIMER_MOTORS_FORWARD,
-            .channel = BSP_TIMER_CHANNEL_4,
+            .timer   = BSP_PWM_USER_TIMER_MOTORS_REAR,
+            .channel = BSP_TIMER_CHANNEL_3,
         },
         .reverse_phase = {
-            .timer   = BSP_PWM_USER_TIMER_MOTORS_REVERSE,
+            .timer   = BSP_PWM_USER_TIMER_MOTORS_REAR,
             .channel = BSP_TIMER_CHANNEL_4,
         },
         .minimum_duty_cycle = 0.0,

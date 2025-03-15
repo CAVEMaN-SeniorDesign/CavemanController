@@ -5,10 +5,10 @@
 #include "bsp.h"
 
 const Bsp_PwmConfig_t BspPwmUser_TimerConfigTable[BSP_PWM_USER_TIMER_MAX] = {
-    [BSP_PWM_USER_TIMER_MOTORS_FORWARD] = {
+    [BSP_PWM_USER_TIMER_MOTORS_FRONT] = {
         .timer_handle = &htim1, .max_channel = BSP_TIMER_CHANNEL_4
     },
-    [BSP_PWM_USER_TIMER_MOTORS_REVERSE] = {
+    [BSP_PWM_USER_TIMER_MOTORS_REAR] = {
         .timer_handle = &htim8, .max_channel = BSP_TIMER_CHANNEL_4
     },
     [BSP_PWM_USER_TIMER_SERVOS_FRONT] = {

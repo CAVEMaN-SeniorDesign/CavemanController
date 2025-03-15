@@ -63,7 +63,7 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
         .minimum_speed      = 0.0,
-        .maximum_speed      = 2.0,
+        .maximum_speed      = 12.5,
         .direction          = BSP_MOTOR_DIRECTION_FORWARD,
     },
     [ROVER_4WS_MOTOR_1] = {
@@ -78,7 +78,7 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
         .minimum_speed      = 0.0,
-        .maximum_speed      = 2.0,
+        .maximum_speed      = 12.5,
         .direction          = BSP_MOTOR_DIRECTION_FORWARD,
     },
     [ROVER_4WS_MOTOR_2] = {
@@ -93,7 +93,7 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
         .minimum_speed      = 0.0,
-        .maximum_speed      = 2.0,
+        .maximum_speed      = 12.5,
         .direction          = BSP_MOTOR_DIRECTION_FORWARD,
     },
     [ROVER_4WS_MOTOR_3] = {
@@ -108,7 +108,7 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
         .minimum_duty_cycle = 0.0,
         .maximum_duty_cycle = 1.0,
         .minimum_speed      = 0.0,
-        .maximum_speed      = 2.0,
+        .maximum_speed      = 12.5,
         .direction          = BSP_MOTOR_DIRECTION_FORWARD,
     }
 };

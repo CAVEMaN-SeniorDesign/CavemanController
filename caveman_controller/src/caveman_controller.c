@@ -27,11 +27,6 @@ int main(void)
     Caveman_Initialize();
     Rover_SetMode(ROVER_MODE_RUN);
 
-    BspMotor_SetDutyCycle(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_0], 0.50);
-    BspMotor_SetDutyCycle(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_1], 0.50);
-    BspMotor_SetDutyCycle(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_2], 0.50);
-    BspMotor_SetDutyCycle(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_3], 0.50);
-
     while (true)
     {
         Rover_Task();

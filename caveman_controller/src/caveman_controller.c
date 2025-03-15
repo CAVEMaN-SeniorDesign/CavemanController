@@ -16,7 +16,6 @@
 
 #include "caveman_cavetalk.h"
 #include "rover.h"
-#include "rover_4ws_config.h"
 
 static const char *kCaveman_LogTag = "CAVEMAN";
 

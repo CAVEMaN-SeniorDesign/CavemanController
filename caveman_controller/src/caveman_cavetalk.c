@@ -13,6 +13,7 @@
 #include "bsp_uart_user.h"
 
 #include "rover_4ws.h"
+#include "rover_camera.h"
 
 #define CAVEMAN_CAVE_TALK_BUFFER_SIZE 1024U
 #define CAVEMAN_CAVE_TALK_HEADER_SIZE 3U
@@ -31,6 +32,7 @@ static CaveTalk_Error_t CavemanCaveTalk_Receive(void *const data, const size_t s
 static CaveTalk_Error_t CavemanCaveTalk_ConvertBspError(const Bsp_Error_t bsp_error);
 static void CavemanCaveTalk_HearOogaBooga(const cave_talk_Say ooga_booga);
 static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed, const CaveTalk_RadiansPerSecond_t turn_rate);
+static void CavemanCaveTalk_HearCameraMovement(const CaveTalk_Radian_t pan, const CaveTalk_Radian_t tilt);
 
 static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
     .link_handle = {
@@ -42,7 +44,7 @@ static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
     .listen_callbacks = {
         .hear_ooga_booga      = CavemanCaveTalk_HearOogaBooga,
         .hear_movement        = CavemanCaveTalk_HearMovement,
-        .hear_camera_movement = NULL,
+        .hear_camera_movement = CavemanCaveTalk_HearCameraMovement,
         .hear_lights          = NULL,
         .hear_mode            = NULL,
     },
@@ -119,5 +121,22 @@ static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed,
     if (ROVER_ERROR_NONE != error)
     {
         BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to set speed and turn rate with error %d", (int)error);
+    }
+}
+
+static void CavemanCaveTalk_HearCameraMovement(const CaveTalk_Radian_t pan, const CaveTalk_Radian_t tilt)
+{
+    Rover_Error_t error = RoverCamera_Pan(pan);
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to set camera pan with error %d", (int)error);
+    }
+
+    error = RoverCamera_Tilt(tilt);
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to set camera tilt with error %d", (int)error);
     }
 }

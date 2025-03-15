@@ -4,6 +4,7 @@
 #include "bsp_logger.h"
 
 #include "rover_4ws.h"
+#include "rover_camera.h"
 
 static Rover_Mode_t Rover_Mode    = ROVER_MODE_STARTUP;
 static const char*  kRover_LogTag = "ROVER";
@@ -92,6 +93,7 @@ static Rover_Error_t Rover_SetModeStartup(void)
 
     (void)Rover4ws_StopMotors();
     (void)Rover4ws_DisableSteering();
+    (void)RoverCamera_Disable();
 
     return ROVER_ERROR_NONE;
 }
@@ -104,6 +106,7 @@ static Rover_Error_t Rover_SetModeConfigure(void)
 
     (void)Rover4ws_StopMotors();
     (void)Rover4ws_DisableSteering();
+    (void)RoverCamera_Disable();
 
     return ROVER_ERROR_NONE;
 }
@@ -116,6 +119,7 @@ static Rover_Error_t Rover_SetModeRun(void)
 
     (void)Rover4ws_EnableSteering();
     (void)Rover4ws_StartMotors();
+    (void)RoverCamera_Enable();
 
     return ROVER_ERROR_NONE;
 }

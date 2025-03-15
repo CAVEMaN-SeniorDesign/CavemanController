@@ -11,9 +11,9 @@ BspServo_Handle_t RoverCamera_Servos[ROVER_CAMERA_CONFIG_SERVO_MAX] = {
         .timer              = BSP_PWM_USER_TIMER_CAMERA_PAN,
         .channel            = BSP_TIMER_CHANNEL_1,
         .minimum_duty_cycle = 0,
-        .maximum_duty_cycle = 0.125,
+        .maximum_duty_cycle = 0.125 / 2.0,
         .minimum_angle      = 0,
-        .maximum_angle      = 120 * ROVER_DEGREES_TO_RADIANS,
+        .maximum_angle      = 180 * ROVER_DEGREES_TO_RADIANS,
     },
     [ROVER_CAMERA_CONFIG_SERVO_TILT] = {
         .timer              = BSP_PWM_USER_TIMER_CAMERA_TILT,
@@ -21,6 +21,6 @@ BspServo_Handle_t RoverCamera_Servos[ROVER_CAMERA_CONFIG_SERVO_MAX] = {
         .minimum_duty_cycle = 0,
         .maximum_duty_cycle = 0.125,
         .minimum_angle      = 0,
-        .maximum_angle      = 120 * ROVER_DEGREES_TO_RADIANS,
+        .maximum_angle      = 180 * ROVER_DEGREES_TO_RADIANS,
     },
 };

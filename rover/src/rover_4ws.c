@@ -3,6 +3,8 @@
 #include "math.h"
 
 #include "bsp.h"
+#include "bsp_encoder.h"
+#include "bsp_encoder_user.h"
 #include "bsp_motor.h"
 #include "bsp_servo.h"
 
@@ -106,6 +108,22 @@ Rover_Error_t Rover4ws_StopMotors(void)
                                BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_2]),
                                BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_1]),
                                BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_3]));
+}
+
+Rover_Error_t Rover4ws_EnableEncoders(void)
+{
+    return Rover4ws_ErrorCheck(BspEncoder_Start(BSP_ENCODER_USER_TIMER_0),
+                               BspEncoder_Start(BSP_ENCODER_USER_TIMER_1),
+                               BspEncoder_Start(BSP_ENCODER_USER_TIMER_2),
+                               BspEncoder_Start(BSP_ENCODER_USER_TIMER_3));
+}
+
+Rover_Error_t Rover4ws_SampleEncoders(void)
+{
+    return Rover4ws_ErrorCheck(BspEncoder_Sample(BSP_ENCODER_USER_TIMER_0),
+                               BspEncoder_Sample(BSP_ENCODER_USER_TIMER_1),
+                               BspEncoder_Sample(BSP_ENCODER_USER_TIMER_2),
+                               BspEncoder_Sample(BSP_ENCODER_USER_TIMER_3));
 }
 
 Rover_Error_t Rover4ws_Drive(const Rover_MetersPerSecond_t speed, const Rover_RadiansPerSecond_t turn_rate)

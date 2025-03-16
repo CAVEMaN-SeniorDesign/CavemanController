@@ -16,11 +16,13 @@ static Rover_Error_t Rover_SetModeRun(void);
 void Rover_Initialize(void)
 {
     (void)Rover_SetMode(ROVER_MODE_STARTUP);
+    (void)Rover4ws_EnableEncoders();
 }
 
 void Rover_Task(void)
 {
     /* TODO tasks that need to occur repeatedly, e.g. feedback control */
+    (void)Rover4ws_SampleEncoders();
 }
 
 Rover_Error_t Rover_BspToRoverError(const Bsp_Error_t bsp_error)

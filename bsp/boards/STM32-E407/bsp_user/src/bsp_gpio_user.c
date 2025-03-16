@@ -6,19 +6,19 @@
 
 Bsp_Gpio_t BspGpioUser_HandleTable[BSP_GPIO_USER_PIN_MAX] = {
     [BSP_GPIO_USER_PIN_HEADLIGHTS_0] = {
-        .gpio_port = GPIOD,
+        .gpio_port = GPIOG,
         .gpio_pin  = GPIO_PIN_4,
         .mode      = BSP_GPIO_MODE_OUTPUT,
         .callback  = NULL,
     },
     [BSP_GPIO_USER_PIN_HEADLIGHTS_1] = {
-        .gpio_port = GPIOD,
+        .gpio_port = GPIOG,
         .gpio_pin  = GPIO_PIN_5,
         .mode      = BSP_GPIO_MODE_OUTPUT,
         .callback  = NULL,
     },
     [BSP_GPIO_USER_PIN_HEADLIGHTS_2] = {
-        .gpio_port = GPIOD,
+        .gpio_port = GPIOG,
         .gpio_pin  = GPIO_PIN_6,
         .mode      = BSP_GPIO_MODE_OUTPUT,
         .callback  = NULL,

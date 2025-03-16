@@ -93,6 +93,8 @@ struct Bsp_Gpio
     Bsp_GpioPort_t *gpio_port;
     Bsp_GpioPin_t gpio_pin;
     Bsp_GpioMode_t mode;
+    Bsp_Microsecond_t debounce;
+    Bsp_Microsecond_t previous;
     void (*callback)(const Bsp_GpioPin_t pin);
 };
 

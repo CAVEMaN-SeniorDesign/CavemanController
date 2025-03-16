@@ -4,6 +4,7 @@
 
 #include "bsp.h"
 #include "bsp_gpio_user.h"
+#include "bsp_tick.h"
 
 Bsp_Error_t BspGpio_Write(const BspGpioUser_Pin_t pin, const Bsp_GpioState_t state)
 {
@@ -52,6 +53,7 @@ Bsp_Error_t BspGpio_RegisterCallback(const BspGpioUser_Pin_t pin, void (*callbac
     else
     {
         BspGpioUser_HandleTable[pin].callback = callback;
+        BspGpioUser_HandleTable[pin].previous = 0U;
     }
 
     return error;
@@ -59,10 +61,15 @@ Bsp_Error_t BspGpio_RegisterCallback(const BspGpioUser_Pin_t pin, void (*callbac
 
 void HAL_GPIO_EXTI_Callback(Bsp_GpioPin_t pin)
 {
-    Bsp_Gpio_t *gpio = BspGpioUser_GetGpioHandle(pin);
+    Bsp_Gpio_t *      gpio = BspGpioUser_GetGpioHandle(pin);
+    Bsp_Microsecond_t tick = BspTick_GetMicroseconds();
 
-    if (NULL != gpio)
+    if ((NULL == gpio) || ((tick - gpio->previous) < gpio->debounce))
+    {
+    }
+    else
     {
         gpio->callback(pin);
+        gpio->previous = tick;
     }
 }

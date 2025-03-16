@@ -41,7 +41,7 @@ Bsp_Error_t BspGpio_RegisterCallback(const BspGpioUser_Pin_t pin, void (*callbac
 {
     Bsp_Error_t error = BSP_ERROR_NONE;
 
-    if (pin >= BSP_GPIO_USER_PIN_MAX)
+    if ((pin >= BSP_GPIO_USER_PIN_MAX) || (BSP_GPIO_MODE_INPUT != BspGpioUser_HandleTable[pin].mode))
     {
         error = BSP_ERROR_PERIPHERAL;
     }

@@ -17,11 +17,14 @@ typedef uint32_t Bsp_Millisecond_t;
 typedef uint64_t Bsp_Microsecond_t;
 typedef int64_t  Bsp_EncoderPulse_t;
 typedef int32_t  Bsp_EncoderPeriod_t; /* Must not exceed 4 bytes for atomic read/write */
+typedef uint16_t Bsp_GpioPin_t;
 
+typedef GPIO_TypeDef       Bsp_GpioPort_t;
 typedef TIM_HandleTypeDef  Bsp_TimerHandle_t;
 typedef UART_HandleTypeDef Bsp_UartHandle_t;
 
 typedef struct Bsp_Encoder          Bsp_Encoder_t;
+typedef struct Bsp_Gpio             Bsp_Gpio_t;
 typedef struct Bsp_PwmConfig        Bsp_PwmConfig_t;
 typedef struct Bsp_UartDoubleBuffer Bsp_UartDoubleBuffer_t;
 typedef struct Bsp_Uart             Bsp_Uart_t;
@@ -52,6 +55,18 @@ typedef enum
     BSP_ENCODER_USER_MODE_RADIANS_PER_PULSE
 } Bsp_EncoderMode_t;
 
+typedef enum
+{
+    BSP_GPIO_STATE_RESET = GPIO_PIN_RESET,
+    BSP_GPIO_STATE_SET = GPIO_PIN_SET
+} Bsp_GpioState_t;
+
+typedef enum
+{
+    BSP_GPIO_MODE_OUTPUT,
+    BSP_GPIO_MODE_INPUT
+} Bsp_GpioMode_t;
+
 struct Bsp_Encoder
 {
     Bsp_TimerHandle_t *timer_handle;
@@ -71,6 +86,14 @@ struct Bsp_Encoder
     Bsp_EncoderPulse_t pulses;                             /* Pulse from most recent sample */
     Bsp_RadiansPerSecond_t raw_angular_rate;               /* Angular rate calculated from most recent sample */
     Bsp_RadiansPerSecond_t angular_rate;                   /* Filtered angular rate */
+};
+
+struct Bsp_Gpio
+{
+    Bsp_GpioPort_t *gpio_port;
+    Bsp_GpioPin_t gpio_pin;
+    Bsp_GpioMode_t mode;
+    void (*callback)(const Bsp_GpioPin_t pin);
 };
 
 struct Bsp_PwmConfig

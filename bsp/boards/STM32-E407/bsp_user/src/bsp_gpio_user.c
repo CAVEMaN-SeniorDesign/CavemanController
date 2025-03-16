@@ -1,6 +1,6 @@
 #include "bsp_gpio_user.h"
 
-#include "stm32f407xx.h"
+#include "main.h"
 
 #include "bsp.h"
 
@@ -24,8 +24,8 @@ Bsp_Gpio_t BspGpioUser_HandleTable[BSP_GPIO_USER_PIN_MAX] = {
         .callback  = NULL,
     },
     [BSP_GPIO_USER_PIN_HEADLIGHTS_ENABLE] = {
-        .gpio_port = GPIOA,
-        .gpio_pin  = GPIO_PIN_0,
+        .gpio_port = HEADLIGHTS_ENABLE_GPIO_Port,
+        .gpio_pin  = HEADLIGHTS_ENABLE_Pin,
         .mode      = BSP_GPIO_MODE_INPUT,
         .callback  = NULL,
     },

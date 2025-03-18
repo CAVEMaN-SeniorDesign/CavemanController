@@ -39,6 +39,23 @@ Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart)
     return error;
 }
 
+Bsp_Error_t BspUart_Stop(const BspUartUser_Uart_t uart)
+{
+    Bsp_Error_t error = BSP_ERROR_PERIPHERAL;
+
+    if (uart < BSP_UART_USER_MAX)
+    {
+        error = (Bsp_Error_t)HAL_UART_DMAStop(BspUartUser_HandleTable[uart].uart_handle);
+
+        if (BSP_ERROR_NONE == error)
+        {
+            (void)BspUart_ResetBuffer(&BspUartUser_HandleTable[uart].tx_buffer);
+        }
+    }
+
+    return error;
+}
+
 Bsp_Error_t BspUart_Transmit(const BspUartUser_Uart_t uart, const uint8_t *const data, const size_t size)
 {
     Bsp_Error_t error = BSP_ERROR_NULL;

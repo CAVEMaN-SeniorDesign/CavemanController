@@ -34,7 +34,7 @@ Bsp_Gpio_t BspGpioUser_HandleTable[BSP_GPIO_USER_PIN_MAX] = {
         .gpio_pin  = HEADLIGHTS_ENABLE_BUTTON_Pin,
         .mode      = BSP_GPIO_MODE_INPUT,
         .callback  = NULL,
-        .debounce  = 50000U,
+        .debounce  = 100000U,
         .previous  = 0U,
     },
 };

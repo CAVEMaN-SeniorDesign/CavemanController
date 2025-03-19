@@ -36,7 +36,6 @@ Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart)
 
         HAL_UART_MspInit(BspUartUser_HandleTable[uart].uart_handle);
 
-        /* TODO SD-241 HAL_UART_Receive_DMA size is UINT16_MAX */
         if (BSP_UART_MODE_TX != BspUartUser_HandleTable[uart].mode)
         {
             error = (Bsp_Error_t)HAL_UART_Receive_DMA(BspUartUser_HandleTable[uart].uart_handle,

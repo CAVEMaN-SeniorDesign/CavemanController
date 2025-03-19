@@ -8,7 +8,6 @@
 #include "stm32f4xx_hal.h"
 
 #define BSP_UNUSED(x) (void)(x)
-#define BSP_UART_DOUBLE_BUFFER_COUNT 2U
 
 typedef double   Bsp_Percent_t;
 typedef double   Bsp_Radian_t;

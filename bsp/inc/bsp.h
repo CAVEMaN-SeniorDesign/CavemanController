@@ -67,6 +67,13 @@ typedef enum
     BSP_GPIO_MODE_INPUT
 } Bsp_GpioMode_t;
 
+typedef enum
+{
+    BSP_UART_MODE_RX,
+    BSP_UART_MODE_TX,
+    BSP_UART_MODE_RXTX
+} Bsp_UartMode_t;
+
 struct Bsp_Encoder
 {
     Bsp_TimerHandle_t *timer_handle;
@@ -107,15 +114,16 @@ struct Bsp_PwmConfig
 struct Bsp_Uart
 {
     Bsp_UartHandle_t *uart_handle;
+    Bsp_UartMode_t mode;
     uint8_t *tx_buffer;
     uint32_t tx_buffer_size;
-    uint32_t tx_read_pointer;
-    uint32_t tx_write_pointer;
-    uint32_t tx_reading;
-    bool txing;
+    volatile uint32_t tx_read_pointer;
+    volatile uint32_t tx_write_pointer;
+    volatile uint32_t tx_reading;
+    volatile bool txing;
     uint8_t *rx_buffer;
     uint32_t rx_buffer_size;
-    uint32_t read_pointer;
+    volatile uint32_t read_pointer;
 };
 
 void Bsp_Initialize(void);

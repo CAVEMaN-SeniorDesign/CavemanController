@@ -6,12 +6,16 @@
 #include "stm32f4xx_hal.h"
 
 #include "bsp.h"
+#include "bsp_logger.h"
 #include "bsp_uart_user.h"
+
+static const char *kBspUart_LogTag = "BSP UART";
 
 extern void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle);
 
 static void BspUart_TxCallback(Bsp_UartHandle_t *uart_handle);
 static Bsp_Error_t BspUart_StartTransmit(Bsp_Uart_t *const uart);
+static void BspUart_ErrorCallback(Bsp_UartHandle_t *uart_handle);
 
 Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart)
 {
@@ -28,11 +32,21 @@ Bsp_Error_t BspUart_Start(const BspUartUser_Uart_t uart)
 
         /* TODO SD-234 receive, error, and abort callbacks */
         BspUartUser_HandleTable[uart].uart_handle->TxCpltCallback = BspUart_TxCallback;
+        BspUartUser_HandleTable[uart].uart_handle->ErrorCallback  = BspUart_ErrorCallback;
 
         HAL_UART_MspInit(BspUartUser_HandleTable[uart].uart_handle);
 
         /* TODO SD-241 HAL_UART_Receive_DMA size is UINT16_MAX */
-        error = (Bsp_Error_t)HAL_UART_Receive_DMA(BspUartUser_HandleTable[uart].uart_handle, BspUartUser_HandleTable[uart].rx_buffer, BspUartUser_HandleTable[uart].rx_buffer_size);
+        if (BSP_UART_MODE_TX != BspUartUser_HandleTable[uart].mode)
+        {
+            error = (Bsp_Error_t)HAL_UART_Receive_DMA(BspUartUser_HandleTable[uart].uart_handle,
+                                                      BspUartUser_HandleTable[uart].rx_buffer,
+                                                      (uint16_t)BspUartUser_HandleTable[uart].rx_buffer_size);
+        }
+        else
+        {
+            error = BSP_ERROR_NONE;
+        }
     }
 
     return error;
@@ -57,7 +71,7 @@ Bsp_Error_t BspUart_Transmit(const BspUartUser_Uart_t uart, const uint8_t *const
     if (NULL == data)
     {
     }
-    else if (uart >= BSP_UART_USER_MAX)
+    else if ((uart >= BSP_UART_USER_MAX) || (BSP_UART_MODE_RX == BspUartUser_HandleTable[uart].mode))
     {
         error = BSP_ERROR_PERIPHERAL;
     }
@@ -106,7 +120,7 @@ Bsp_Error_t BspUart_Receive(const BspUartUser_Uart_t uart, uint8_t *const data, 
     {
         error = BSP_ERROR_NULL;
     }
-    else if (uart >= BSP_UART_USER_MAX)
+    else if ((uart >= BSP_UART_USER_MAX) || (BSP_UART_MODE_TX == BspUartUser_HandleTable[uart].mode))
     {
         error = BSP_ERROR_PERIPHERAL;
     }
@@ -194,4 +208,14 @@ static Bsp_Error_t BspUart_StartTransmit(Bsp_Uart_t *const uart)
     }
 
     return error;
+}
+
+static void BspUart_ErrorCallback(Bsp_UartHandle_t *uart_handle)
+{
+    const Bsp_Uart_t* const uart = BspUartUser_GetUart(uart_handle);
+
+    if (NULL != uart)
+    {
+        BSP_LOGGER_LOG_ERROR(kBspUart_LogTag, "Error detected");
+    }
 }

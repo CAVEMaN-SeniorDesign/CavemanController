@@ -19,61 +19,40 @@ static uint8_t BspUartUser_DustSensorRxBuffer[BSP_UART_USER_COMMS_BUFFER_SIZE];
 
 Bsp_Uart_t BspUartUser_HandleTable[BSP_UART_USER_MAX] = {
     [BSP_UART_USER_LOG] = {
-        .uart_handle = &huart3,
-        .tx_buffer   = {
-            .buffer           = BspUartUser_LogTxBuffer,
-            .half_buffer_size = sizeof(BspUartUser_LogTxBuffer) >> 1U,
-            .writing          = false,
-            .reading          = false,
-            .unlocked         = 0U,
-            .write_count      = {
-                0U, 0U
-            },
-            .read_count = {
-                0U, 0U
-            },
-        },
-        .rx_buffer      = BspUartUser_LogRxBuffer,
-        .rx_buffer_size = (uint32_t)sizeof(BspUartUser_LogRxBuffer),
-        .read_pointer   = 0U,
+        .uart_handle      = &huart3,
+        .tx_buffer        = BspUartUser_LogTxBuffer,
+        .tx_buffer_size   = (uint32_t)sizeof(BspUartUser_LogTxBuffer),
+        .tx_read_pointer  = 0U,
+        .tx_write_pointer = 0U,
+        .tx_reading       = 0U,
+        .txing            = false,
+        .rx_buffer        = BspUartUser_LogRxBuffer,
+        .rx_buffer_size   = (uint32_t)sizeof(BspUartUser_LogRxBuffer),
+        .read_pointer     = 0U,
     },
     [BSP_UART_USER_COMMS] = {
-        .uart_handle = &huart1,
-        .tx_buffer   = {
-            .buffer           = BspUartUser_CommsTxBuffer,
-            .half_buffer_size = sizeof(BspUartUser_CommsTxBuffer) >> 1U,
-            .writing          = false,
-            .reading          = false,
-            .unlocked         = 0U,
-            .write_count      = {
-                0U, 0U
-            },
-            .read_count = {
-                0U, 0U
-            },
-        },
-        .rx_buffer      = BspUartUser_CommsRxBuffer,
-        .rx_buffer_size = (uint32_t)sizeof(BspUartUser_CommsRxBuffer),
-        .read_pointer   = 0U,
+        .uart_handle      = &huart1,
+        .tx_buffer        = BspUartUser_CommsTxBuffer,
+        .tx_buffer_size   = (uint32_t)sizeof(BspUartUser_CommsTxBuffer),
+        .tx_read_pointer  = 0U,
+        .tx_write_pointer = 0U,
+        .tx_reading       = 0U,
+        .txing            = false,
+        .rx_buffer        = BspUartUser_CommsRxBuffer,
+        .rx_buffer_size   = (uint32_t)sizeof(BspUartUser_CommsRxBuffer),
+        .read_pointer     = 0U,
     },
     [BSP_UART_USER_DUST_SENSOR] = {
-        .uart_handle = &huart6,
-        .tx_buffer   = {
-            .buffer           = BspUartUser_DustSensorTxBuffer,
-            .half_buffer_size = sizeof(BspUartUser_DustSensorTxBuffer) >> 1U,
-            .writing          = false,
-            .reading          = false,
-            .unlocked         = 0U,
-            .write_count      = {
-                0U, 0U
-            },
-            .read_count = {
-                0U, 0U
-            },
-        },
-        .rx_buffer      = BspUartUser_DustSensorRxBuffer,
-        .rx_buffer_size = (uint32_t)sizeof(BspUartUser_DustSensorRxBuffer),
-        .read_pointer   = 0U,
+        .uart_handle      = &huart6,
+        .tx_buffer        = BspUartUser_DustSensorTxBuffer,
+        .tx_buffer_size   = (uint32_t)sizeof(BspUartUser_DustSensorTxBuffer),
+        .tx_read_pointer  = 0U,
+        .tx_write_pointer = 0U,
+        .tx_reading       = 0U,
+        .txing            = false,
+        .rx_buffer        = BspUartUser_DustSensorRxBuffer,
+        .rx_buffer_size   = (uint32_t)sizeof(BspUartUser_DustSensorRxBuffer),
+        .read_pointer     = 0U,
     }
 };
 

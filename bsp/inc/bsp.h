@@ -23,11 +23,10 @@ typedef GPIO_TypeDef       Bsp_GpioPort_t;
 typedef TIM_HandleTypeDef  Bsp_TimerHandle_t;
 typedef UART_HandleTypeDef Bsp_UartHandle_t;
 
-typedef struct Bsp_Encoder          Bsp_Encoder_t;
-typedef struct Bsp_Gpio             Bsp_Gpio_t;
-typedef struct Bsp_PwmConfig        Bsp_PwmConfig_t;
-typedef struct Bsp_UartDoubleBuffer Bsp_UartDoubleBuffer_t;
-typedef struct Bsp_Uart             Bsp_Uart_t;
+typedef struct Bsp_Encoder   Bsp_Encoder_t;
+typedef struct Bsp_Gpio      Bsp_Gpio_t;
+typedef struct Bsp_PwmConfig Bsp_PwmConfig_t;
+typedef struct Bsp_Uart      Bsp_Uart_t;
 
 typedef enum
 {
@@ -38,6 +37,7 @@ typedef enum
     BSP_ERROR_PERIPHERAL = 0x04U,
     BSP_ERROR_VALUE = 0x05U,
     BSP_ERROR_NULL = 0x06U,
+    BSP_ERROR_SIZE = 0x07U
 } Bsp_Error_t;
 
 typedef enum
@@ -104,21 +104,15 @@ struct Bsp_PwmConfig
     Bsp_TimerChannel_t max_channel;
 };
 
-struct Bsp_UartDoubleBuffer
-{
-    uint8_t *buffer;
-    uint32_t half_buffer_size;
-    volatile bool writing;
-    volatile bool reading;
-    volatile uint8_t unlocked; /* 0 - write or 1 - read, numeric type because used as index */
-    volatile uint32_t write_count[BSP_UART_DOUBLE_BUFFER_COUNT];
-    volatile uint32_t read_count[BSP_UART_DOUBLE_BUFFER_COUNT];
-};
-
 struct Bsp_Uart
 {
     Bsp_UartHandle_t *uart_handle;
-    Bsp_UartDoubleBuffer_t tx_buffer;
+    uint8_t *tx_buffer;
+    uint32_t tx_buffer_size;
+    uint32_t tx_read_pointer;
+    uint32_t tx_write_pointer;
+    uint32_t tx_reading;
+    bool txing;
     uint8_t *rx_buffer;
     uint32_t rx_buffer_size;
     uint32_t read_pointer;

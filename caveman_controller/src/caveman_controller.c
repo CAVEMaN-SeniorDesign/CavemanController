@@ -1,51 +1,35 @@
 #include "caveman_controller.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "bsp.h"
 #include "bsp_gpio.h"
 #include "bsp_gpio_user.h"
-#include "bsp_encoder.h"
-#include "bsp_encoder_user.h"
 #include "bsp_logger.h"
-#include "bsp_motor.h"
-#include "bsp_pwm.h"
-#include "bsp_pwm_user.h"
-#include "bsp_servo.h"
 #include "bsp_tick.h"
-#include "bsp_uart.h"
-#include "bsp_uart_user.h"
 
 #include "caveman_cavetalk.h"
 #include "rover.h"
+
+#define CAVEMAN_LOOP_LOG_PERIOD (Bsp_Microsecond_t)((Bsp_Microsecond_t)5 * BSP_TICK_MICROSECONDS_PER_SECOND)
 
 static const char *kCaveman_LogTag = "CAVEMAN";
 
 static void Caveman_Initialize(void);
 static void Caveman_HeadlightsCallback(const Bsp_GpioPin_t pin);
+static void Caveman_MeasureLoopRate(void);
 
 int main(void)
 {
     Caveman_Initialize();
     Rover_SetMode(ROVER_MODE_RUN);
 
-    size_t            loop_count = 0U;
-    Bsp_Microsecond_t start      = BspTick_GetMicroseconds();
     while (true)
     {
         Rover_Task();
         CavemanCaveTalk_Task();
-        loop_count++;
-
-        Bsp_Microsecond_t time       = BspTick_GetMicroseconds();
-        Bsp_Microsecond_t difference = time - start;
-        if (difference >= 1e6)
-        {
-            int loop_rate = (int)((double)loop_count / ((double)difference / 10e6));
-            BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Loop rate %dHz", loop_rate);
-            loop_count = 0;
-            start      = time;
-        }
+        Caveman_MeasureLoopRate();
     }
 
     return 0;
@@ -84,4 +68,21 @@ static void Caveman_HeadlightsCallback(const Bsp_GpioPin_t pin)
     (void)BspGpio_Toggle(BSP_GPIO_USER_PIN_HEADLIGHTS_2);
 
     BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Toggle headlights");
+}
+
+static void Caveman_MeasureLoopRate(void)
+{
+    static size_t            loop_count    = 0U;
+    static Bsp_Microsecond_t previous_time = BspTick_GetMicroseconds();
+
+    loop_count++;
+
+    Bsp_Microsecond_t time       = BspTick_GetMicroseconds();
+    Bsp_Microsecond_t difference = time - previous_time;
+    if (difference >= CAVEMAN_LOOP_LOG_PERIOD)
+    {
+        BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Loop rate %dHz", (int)((double)loop_count / ((double)difference / BSP_TICK_MICROSECONDS_PER_SECOND)));
+        loop_count    = 0;
+        previous_time = time;
+    }
 }

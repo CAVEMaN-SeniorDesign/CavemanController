@@ -40,6 +40,7 @@ static void CavemanCaveTalk_HearOogaBooga(const cave_talk_Say ooga_booga);
 static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed, const CaveTalk_RadiansPerSecond_t turn_rate);
 static void CavemanCaveTalk_HearCameraMovement(const CaveTalk_Radian_t pan, const CaveTalk_Radian_t tilt);
 static void CavemanCaveTalk_HearLights(const bool headlights);
+static void CavemanCaveTalk_HearArm(const bool arm);
 static void CavemanCaveTalk_SendOdometry(void);
 
 static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
@@ -54,7 +55,7 @@ static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
         .hear_movement        = CavemanCaveTalk_HearMovement,
         .hear_camera_movement = CavemanCaveTalk_HearCameraMovement,
         .hear_lights          = CavemanCaveTalk_HearLights,
-        .hear_mode            = NULL,
+        .hear_mode            = CavemanCaveTalk_HearArm,
     },
 };
 
@@ -167,6 +168,18 @@ static void CavemanCaveTalk_HearLights(const bool headlights)
         (void)BspGpio_Write(BSP_GPIO_USER_PIN_HEADLIGHTS_0, BSP_GPIO_STATE_RESET);
         (void)BspGpio_Write(BSP_GPIO_USER_PIN_HEADLIGHTS_1, BSP_GPIO_STATE_RESET);
         (void)BspGpio_Write(BSP_GPIO_USER_PIN_HEADLIGHTS_2, BSP_GPIO_STATE_RESET);
+    }
+}
+
+static void CavemanCaveTalk_HearArm(const bool arm)
+{
+    if (arm)
+    {
+        (void)Rover_Arm();
+    }
+    else
+    {
+        (void)Rover_Dearm();
     }
 }
 

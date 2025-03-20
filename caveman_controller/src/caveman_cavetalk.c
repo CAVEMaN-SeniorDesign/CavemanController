@@ -18,7 +18,7 @@
 #include "bsp_uart.h"
 #include "bsp_uart_user.h"
 
-#include "rover.h"
+#include "rover_4ws.h"
 #include "rover_camera.h"
 
 #define CAVEMAN_CAVE_TALK_BUFFER_SIZE 1024U
@@ -128,7 +128,7 @@ static void CavemanCaveTalk_HearOogaBooga(const cave_talk_Say ooga_booga)
 
 static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed, const CaveTalk_RadiansPerSecond_t turn_rate)
 {
-    Rover_Error_t error = Rover_Drive(speed, turn_rate);
+    Rover_Error_t error = Rover4ws_Drive(speed, turn_rate);
 
     if (ROVER_ERROR_NONE != error)
     {

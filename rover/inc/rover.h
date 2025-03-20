@@ -27,6 +27,5 @@ Rover_Error_t Rover_BspToRoverError(const Bsp_Error_t bsp_error);
 Rover_Error_t Rover_Arm(void);
 Rover_Error_t Rover_Dearm(void);
 bool Rover_IsArmed(void);
-Rover_Error_t Rover_Drive(const Rover_MetersPerSecond_t speed, const Rover_RadiansPerSecond_t turn_rate);
 
 #endif /* ROVER_H */

@@ -118,6 +118,14 @@ Rover_Error_t Rover4ws_EnableEncoders(void)
                                BspEncoder_Start(BSP_ENCODER_USER_TIMER_3));
 }
 
+Rover_Error_t Rover4ws_DisableEncoders(void)
+{
+    return Rover4ws_ErrorCheck(BspEncoder_Stop(BSP_ENCODER_USER_TIMER_0),
+                               BspEncoder_Stop(BSP_ENCODER_USER_TIMER_1),
+                               BspEncoder_Stop(BSP_ENCODER_USER_TIMER_2),
+                               BspEncoder_Stop(BSP_ENCODER_USER_TIMER_3));
+}
+
 Rover_Error_t Rover4ws_SampleEncoders(void)
 {
     return Rover4ws_ErrorCheck(BspEncoder_Sample(BSP_ENCODER_USER_TIMER_0),

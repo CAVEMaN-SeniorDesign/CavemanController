@@ -73,7 +73,7 @@ static void Caveman_HeadlightsCallback(const Bsp_GpioPin_t pin)
 static void Caveman_MeasureLoopRate(void)
 {
     static size_t            loop_count    = 0U;
-    static Bsp_Microsecond_t previous_time = BspTick_GetMicroseconds();
+    static Bsp_Microsecond_t previous_time = 0U;
 
     loop_count++;
 

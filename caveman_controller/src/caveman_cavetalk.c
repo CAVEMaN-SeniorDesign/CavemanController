@@ -18,7 +18,7 @@
 #include "bsp_uart.h"
 #include "bsp_uart_user.h"
 
-#include "rover_4ws.h"
+#include "rover.h"
 #include "rover_camera.h"
 
 #define CAVEMAN_CAVE_TALK_BUFFER_SIZE 1024U
@@ -51,11 +51,17 @@ static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
     .buffer           = CavemanCaveTalk_Buffer,
     .buffer_size      = sizeof(CavemanCaveTalk_Buffer),
     .listen_callbacks = {
-        .hear_ooga_booga      = CavemanCaveTalk_HearOogaBooga,
-        .hear_movement        = CavemanCaveTalk_HearMovement,
-        .hear_camera_movement = CavemanCaveTalk_HearCameraMovement,
-        .hear_lights          = CavemanCaveTalk_HearLights,
-        .hear_mode            = CavemanCaveTalk_HearArm,
+        .hear_ooga_booga          = CavemanCaveTalk_HearOogaBooga,
+        .hear_movement            = CavemanCaveTalk_HearMovement,
+        .hear_camera_movement     = CavemanCaveTalk_HearCameraMovement,
+        .hear_lights              = CavemanCaveTalk_HearLights,
+        .hear_mode                = CavemanCaveTalk_HearArm,
+        .hear_odometry            = NULL,
+        .hear_log                 = NULL,
+        .hear_config_servo_wheels = NULL,
+        .hear_config_servo_cams   = NULL,
+        .hear_config_motors       = NULL,
+        .hear_config_encoders     = NULL,
     },
 };
 
@@ -122,7 +128,7 @@ static void CavemanCaveTalk_HearOogaBooga(const cave_talk_Say ooga_booga)
 
 static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed, const CaveTalk_RadiansPerSecond_t turn_rate)
 {
-    Rover_Error_t error = Rover4ws_Drive(speed, turn_rate);
+    Rover_Error_t error = Rover_Drive(speed, turn_rate);
 
     if (ROVER_ERROR_NONE != error)
     {

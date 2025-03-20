@@ -105,3 +105,8 @@ bool Rover_IsArmed(void)
 {
     return Rover_Armed;
 }
+
+Rover_Error_t Rover_Drive(const Rover_MetersPerSecond_t speed, const Rover_RadiansPerSecond_t turn_rate)
+{
+    return Rover4ws_Drive(speed, turn_rate);
+}

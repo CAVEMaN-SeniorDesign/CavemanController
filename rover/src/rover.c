@@ -105,3 +105,15 @@ bool Rover_IsArmed(void)
 {
     return Rover_Armed;
 }
+
+Rover_Error_t Rover_Drive(const Rover_MetersPerSecond_t speed, const Rover_RadiansPerSecond_t turn_rate)
+{
+    Rover_Error_t error = Rover4ws_Drive(speed, turn_rate);
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kRover_LogTag, "Failed to set speed and turn rate with error %d", (int)error);
+    }
+
+    return error;
+}

@@ -137,7 +137,7 @@ static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed,
 {
     (void)Rover_Drive(speed, turn_rate);
     CavemanCaveTalk_SendOdometry();
-    BSP_LOGGER_LOG_DEBUG(kCavemanCaveTalk_LogTag, "Heard movement message");
+    BSP_LOGGER_LOG_VERBOSE(kCavemanCaveTalk_LogTag, "Heard movement message");
 }
 
 static void CavemanCaveTalk_HearCameraMovement(const CaveTalk_Radian_t pan, const CaveTalk_Radian_t tilt)

@@ -9,6 +9,7 @@
 
 #include "bsp.h"
 #include "bsp_gpio.h"
+#include "bsp_gpio_user.h"
 #include "bsp_logger.h"
 
 #define ROVER_IMU_BOOT_TIME     (Bsp_Millisecond_t)10U

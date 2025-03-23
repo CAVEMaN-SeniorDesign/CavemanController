@@ -45,6 +45,14 @@ Bsp_Gpio_t BspGpioUser_HandleTable[BSP_GPIO_USER_PIN_MAX] = {
         .debounce  = 0U,
         .previous  = 0U,
     },
+    [BSP_GPIO_USER_PIN_IMU_STATUS] = {
+        .gpio_port = IMU_STATUS_LED_GPIO_Port,
+        .gpio_pin  = IMU_STATUS_LED_Pin,
+        .mode      = BSP_GPIO_MODE_OUTPUT,
+        .callback  = NULL,
+        .debounce  = 0U,
+        .previous  = 0U,
+    },
 };
 
 Bsp_Gpio_t *BspGpioUser_GetGpioHandle(const Bsp_GpioPin_t exti_pin)

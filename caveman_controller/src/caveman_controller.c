@@ -11,6 +11,7 @@
 
 #include "caveman_cavetalk.h"
 #include "rover.h"
+#include "rover_imu.h"
 
 #define CAVEMAN_LOOP_LOG_PERIOD (Bsp_Microsecond_t)((Bsp_Microsecond_t)5 * BSP_TICK_MICROSECONDS_PER_SECOND)
 
@@ -44,21 +45,26 @@ static void Caveman_Initialize(void)
     {
         BSP_LOGGER_LOG_ERROR(kCaveman_LogTag, "Failed to start BSP Tick");
     }
+
     Rover_Initialize();
+    RoverImu_Initialize();
+
     if (CAVE_TALK_ERROR_NONE != CavemanCaveTalk_Start())
     {
         BSP_LOGGER_LOG_ERROR(kCaveman_LogTag, "Failed to start CAVeTalk");
     }
-    BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Initialized");
-
-    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_SET); /* Test IMU LED */
 
     /* Turn off headlights */
     (void)BspGpio_Write(BSP_GPIO_USER_PIN_HEADLIGHTS_0, BSP_GPIO_STATE_RESET);
     (void)BspGpio_Write(BSP_GPIO_USER_PIN_HEADLIGHTS_1, BSP_GPIO_STATE_RESET);
     (void)BspGpio_Write(BSP_GPIO_USER_PIN_HEADLIGHTS_2, BSP_GPIO_STATE_RESET);
 
+    /* Register headlights callback */
     (void)BspGpio_RegisterCallback(BSP_GPIO_USER_PIN_HEADLIGHTS_ENABLE, Caveman_HeadlightsCallback);
+
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_SET); /* Test IMU LED */
+
+    BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Initialized");
 }
 
 static void Caveman_HeadlightsCallback(const Bsp_GpioPin_t pin)

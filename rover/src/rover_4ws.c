@@ -181,8 +181,12 @@ Rover_Error_t Rover4ws_Drive(const Rover_MetersPerSecond_t speed, const Rover_Ra
 {
     Rover_Error_t error = ROVER_ERROR_NONE;
 
+    if (!Rover_IsArmed())
+    {
+        error = ROVER_ERROR_MODE;
+    }
     /* Check for divide by zero */
-    if (0.0 != speed)
+    else if (0.0 != speed)
     {
         Rover_Radian_t steering_angle = atan((turn_rate * kRover4wsConfig_HalfWheelbase) / speed);
         error = Rover4ws_SetSteeringAngle(steering_angle);

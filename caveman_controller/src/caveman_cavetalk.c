@@ -7,6 +7,7 @@
 #include "cave_talk_types.h"
 #include "cave_talk_link.h"
 #include "config_encoder.pb.h"
+#include "log.pb.h"
 #include "ooga_booga.pb.h"
 #include "odometry.pb.h"
 
@@ -53,6 +54,7 @@ static void CavemanCaveTalk_HearConfigEncoders(const cave_talk_ConfigEncoder *co
                                                const cave_talk_ConfigEncoder *const encoder_wheel_1,
                                                const cave_talk_ConfigEncoder *const encoder_wheel_2,
                                                const cave_talk_ConfigEncoder *const encoder_wheel_3);
+static void CavemanCaveTalk_HearConfigLog(const cave_talk_LogLevel log_level);
 static void CavemanCaveTalk_SendOdometry(void);
 
 static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
@@ -74,6 +76,7 @@ static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
         .hear_config_servo_cams   = NULL,
         .hear_config_motors       = NULL,
         .hear_config_encoders     = CavemanCaveTalk_HearConfigEncoders,
+        .hear_config_log          = CavemanCaveTalk_HearConfigLog,
     },
 };
 
@@ -274,6 +277,14 @@ static void CavemanCaveTalk_HearConfigEncoders(const cave_talk_ConfigEncoder *co
             BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Encoders configured");
         }
     }
+}
+
+static void CavemanCaveTalk_HearConfigLog(const cave_talk_LogLevel log_level)
+{
+    CavemanCaveTalk_HeardMessage("config log");
+
+    BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Setting log level to %d", (int)log_level);
+    BspLogger_SetLogLevel((BspLogger_Level_t)log_level);
 }
 
 static void CavemanCaveTalk_SendOdometry(void)

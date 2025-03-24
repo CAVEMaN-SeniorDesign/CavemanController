@@ -13,7 +13,7 @@
 #include "rover.h"
 #include "rover_imu.h"
 
-#define CAVEMAN_LOOP_LOG_PERIOD (Bsp_Microsecond_t)((Bsp_Microsecond_t)5 * BSP_TICK_MICROSECONDS_PER_SECOND)
+#define CAVEMAN_LOOP_LOG_PERIOD (Bsp_Microsecond_t)((Bsp_Microsecond_t)5U * BSP_TICK_MICROSECONDS_PER_SECOND)
 
 static const char *kCaveman_LogTag = "CAVEMAN";
 

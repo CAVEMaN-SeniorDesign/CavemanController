@@ -296,6 +296,19 @@ static void CavemanCaveTalk_SendOdometry(void)
     cave_talk_Encoder encoder_message_3 = cave_talk_Encoder_init_zero;
 
     /* TODO */
+    Rover_AccelerometerReading_t accelerometer_reading = {
+        .x = 0.0,
+        .y = 0.0,
+        .z = 0.0,
+    };
+    (void)Rover_ReadAccelerometer(&accelerometer_reading);
+
+    imu_message.accel.x_meters_per_second_squared = accelerometer_reading.x;
+    imu_message.accel.y_meters_per_second_squared = accelerometer_reading.y;
+    imu_message.accel.z_meters_per_second_squared = accelerometer_reading.z;
+    imu_message.has_accel                         = true;
+
+    /* TODO */
     Rover_GyroscopeReading_t gyro_reading = {
         .x = 0.0,
         .y = 0.0,

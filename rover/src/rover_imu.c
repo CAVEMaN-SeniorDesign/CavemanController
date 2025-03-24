@@ -24,6 +24,23 @@ void RoverImu_Initialize(void)
     }
 }
 
+Rover_Error_t RoverImu_ReadAccelerometer(Rover_AccelerometerReading_t *const reading)
+{
+    Rover_Error_t error = ROVER_ERROR_NONE;
+
+    if (NULL == reading)
+    {
+        error = ROVER_ERROR_NULL;
+    }
+    else
+    {
+        /* TODO return type */
+        RoverImuConfig_ReadAccelerometer(&reading->x, &reading->y, &reading->z);
+    }
+
+    return error;
+}
+
 Rover_Error_t RoverImu_ReadGyroscope(Rover_GyroscopeReading_t *const reading)
 {
     Rover_Error_t error = ROVER_ERROR_NONE;

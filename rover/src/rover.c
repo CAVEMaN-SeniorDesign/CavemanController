@@ -127,6 +127,22 @@ Rover_Error_t Rover_Drive(const Rover_MetersPerSecond_t speed, const Rover_Radia
     return error;
 }
 
+Rover_Error_t Rover_ReadAccelerometer(Rover_AccelerometerReading_t *const reading)
+{
+    Rover_Error_t error = RoverImu_ReadAccelerometer(reading);
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kRover_LogTag, "Failed to read accelerometer with error %d", (int)error);
+    }
+    else
+    {
+        BSP_LOGGER_LOG_VERBOSE(kRover_LogTag, "Read acceleration x: %lf, y: %lf, z: %lf", reading->x, reading->y, reading->z);
+    }
+
+    return error;
+}
+
 Rover_Error_t Rover_ReadGyroscope(Rover_GyroscopeReading_t *const reading)
 {
     Rover_Error_t error = RoverImu_ReadGyroscope(reading);

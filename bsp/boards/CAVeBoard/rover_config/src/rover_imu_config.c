@@ -20,6 +20,7 @@ static const char * kRoverImuConfig_LogTag = "ROVER IMU CONFIG";
 
 static int32_t RoverImuConfig_Write(void *const handle, const uint8_t imu_register, const uint8_t *const data, const uint16_t size);
 static int32_t RoverImuConfig_Read(void *const handle, const uint8_t imu_register, uint8_t *const data, const uint16_t size);
+static void RoverImuConfig_ReadAll(void);
 
 static stmdev_ctx_t RoverImuConfig_DeviceHandle = {
     .write_reg = RoverImuConfig_Write,
@@ -28,7 +29,8 @@ static stmdev_ctx_t RoverImuConfig_DeviceHandle = {
     .handle    = &hspi2,
 };
 
-static int16_t RoverImuConfig_RawGyroscope[3U]; /* TODO magic number */
+static int16_t RoverImuConfig_RawAccelerometer[3U]; /* TODO magic number */
+static int16_t RoverImuConfig_RawGyroscope[3U];     /* TODO magic number */
 
 bool RoverImuConfig_Initialize(void)
 {
@@ -92,6 +94,28 @@ bool RoverImuConfig_Initialize(void)
     return initialized;
 }
 
+bool RoverImuConfig_ReadAccelerometer(double *const x, double *const y, double *const z)
+{
+    bool read = false;
+
+    if ((NULL == x) || (NULL == y) || (NULL == z))
+    {
+    }
+    else
+    {
+        RoverImuConfig_ReadAll();
+
+        /* TODO convert to m/s^2 */
+        *x = (double)lsm6dsv16x_from_fs2_to_mg(RoverImuConfig_RawAccelerometer[0U]);
+        *y = (double)lsm6dsv16x_from_fs2_to_mg(RoverImuConfig_RawAccelerometer[1U]);
+        *z = (double)lsm6dsv16x_from_fs2_to_mg(RoverImuConfig_RawAccelerometer[2U]);
+
+        read = true;
+    }
+
+    return read;
+}
+
 bool RoverImuConfig_ReadGyroscope(double *const x, double *const y, double *const z)
 {
     bool read = false;
@@ -101,18 +125,12 @@ bool RoverImuConfig_ReadGyroscope(double *const x, double *const y, double *cons
     }
     else
     {
-        lsm6dsv16x_data_ready_t data_ready;
-        lsm6dsv16x_flag_data_ready_get(&RoverImuConfig_DeviceHandle, &data_ready);
-
-        if (data_ready.drdy_gy)
-        {
-            lsm6dsv16x_angular_rate_raw_get(&RoverImuConfig_DeviceHandle, RoverImuConfig_RawGyroscope);
-        }
+        RoverImuConfig_ReadAll();
 
         /* TODO convert to rad/s */
         *x = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[0U]);
-        *y = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[0U]);
-        *z = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[0U]);
+        *y = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[1U]);
+        *z = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[2U]);
 
         read = true;
     }
@@ -144,4 +162,20 @@ static int32_t RoverImuConfig_Read(void *const handle, const uint8_t imu_registe
     BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_SET);
 
     return 0;
+}
+
+static void RoverImuConfig_ReadAll(void)
+{
+    lsm6dsv16x_data_ready_t data_ready;
+    lsm6dsv16x_flag_data_ready_get(&RoverImuConfig_DeviceHandle, &data_ready);
+
+    if (data_ready.drdy_xl)
+    {
+        lsm6dsv16x_acceleration_raw_get(&RoverImuConfig_DeviceHandle, RoverImuConfig_RawAccelerometer);
+    }
+
+    if (data_ready.drdy_gy)
+    {
+        lsm6dsv16x_angular_rate_raw_get(&RoverImuConfig_DeviceHandle, RoverImuConfig_RawGyroscope);
+    }
 }

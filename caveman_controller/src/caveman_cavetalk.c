@@ -295,6 +295,8 @@ static void CavemanCaveTalk_SendOdometry(void)
     imu_message.gyro.roll_radians_per_second  = gyro_reading.x;
     imu_message.gyro.pitch_radians_per_second = gyro_reading.y;
     imu_message.gyro.yaw_radians_per_second   = gyro_reading.z;
+    imu_message.has_gyro                      = true;
+
     encoder_message_0.total_pulses            = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].pulses;
     encoder_message_0.rate_radians_per_second = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].angular_rate;
     encoder_message_1.total_pulses            = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_1].pulses;

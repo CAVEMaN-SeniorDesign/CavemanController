@@ -28,6 +28,8 @@ static stmdev_ctx_t RoverImuConfig_DeviceHandle = {
     .handle    = &hspi2,
 };
 
+static int16_t RoverImuConfig_RawGyroscope[3U]; /* TODO magic number */
+
 bool RoverImuConfig_Initialize(void)
 {
     bool initialized = false;
@@ -64,8 +66,8 @@ bool RoverImuConfig_Initialize(void)
          * Selected data rate have to be equal or greater with respect
          * with MLC data rate.
          */
-        lsm6dsv16x_xl_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_7Hz5);
-        lsm6dsv16x_gy_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_15Hz);
+        lsm6dsv16x_xl_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_7680Hz);
+        lsm6dsv16x_gy_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_7680Hz);
 
         /* Set full scale */
         lsm6dsv16x_xl_full_scale_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_2g);
@@ -88,6 +90,34 @@ bool RoverImuConfig_Initialize(void)
     }
 
     return initialized;
+}
+
+bool RoverImuConfig_ReadGyroscope(double *const x, double *const y, double *const z)
+{
+    bool read = false;
+
+    if ((NULL == x) || (NULL == y) || (NULL == z))
+    {
+    }
+    else
+    {
+        lsm6dsv16x_data_ready_t data_ready;
+        lsm6dsv16x_flag_data_ready_get(&RoverImuConfig_DeviceHandle, &data_ready);
+
+        if (data_ready.drdy_gy)
+        {
+            lsm6dsv16x_angular_rate_raw_get(&RoverImuConfig_DeviceHandle, RoverImuConfig_RawGyroscope);
+        }
+
+        /* TODO convert to rad/s */
+        *x = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[0U]);
+        *y = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[0U]);
+        *z = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[0U]);
+
+        read = true;
+    }
+
+    return read;
 }
 
 static int32_t RoverImuConfig_Write(void *const handle, const uint8_t imu_register, const uint8_t *const data, const uint16_t size)

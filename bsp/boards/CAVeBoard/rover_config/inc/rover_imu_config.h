@@ -4,5 +4,6 @@
 #include <stdbool.h>
 
 bool RoverImuConfig_Initialize(void);
+bool RoverImuConfig_ReadGyroscope(double *const x, double *const y, double *const z);
 
 #endif /* ROVER_IMU_CONFIG_H */

@@ -137,7 +137,7 @@ static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed,
 {
     (void)Rover_Drive(speed, turn_rate);
     CavemanCaveTalk_SendOdometry();
-    BSP_LOGGER_LOG_VERBOSE(kCavemanCaveTalk_LogTag, "Heard movement message");
+    BSP_LOGGER_LOG_VERBOSE(kCavemanCaveTalk_LogTag, "Heard movement");
 }
 
 static void CavemanCaveTalk_HearCameraMovement(const CaveTalk_Radian_t pan, const CaveTalk_Radian_t tilt)
@@ -224,6 +224,17 @@ static void CavemanCaveTalk_SendOdometry(void)
     cave_talk_Encoder encoder_message_2 = cave_talk_Encoder_init_zero;
     cave_talk_Encoder encoder_message_3 = cave_talk_Encoder_init_zero;
 
+    /* TODO */
+    Rover_GyroscopeReading_t gyro_reading = {
+        .x = 0.0,
+        .y = 0.0,
+        .z = 0.0,
+    };
+    (void)Rover_ReadGyroscope(&gyro_reading);
+
+    imu_message.gyro.roll_radians_per_second  = gyro_reading.x;
+    imu_message.gyro.pitch_radians_per_second = gyro_reading.y;
+    imu_message.gyro.yaw_radians_per_second   = gyro_reading.z;
     encoder_message_0.total_pulses            = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].pulses;
     encoder_message_0.rate_radians_per_second = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].angular_rate;
     encoder_message_1.total_pulses            = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_1].pulses;

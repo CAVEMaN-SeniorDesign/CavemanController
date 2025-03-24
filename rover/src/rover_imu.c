@@ -23,3 +23,20 @@ void RoverImu_Initialize(void)
         BSP_LOGGER_LOG_INFO(kRoverImu_LogTag, "Initialized");
     }
 }
+
+Rover_Error_t RoverImu_ReadGyroscope(Rover_GyroscopeReading_t *const reading)
+{
+    Rover_Error_t error = ROVER_ERROR_NONE;
+
+    if (NULL == reading)
+    {
+        error = ROVER_ERROR_NULL;
+    }
+    else
+    {
+        /* TODO return type */
+        RoverImuConfig_ReadGyroscope(&reading->x, &reading->y, &reading->z);
+    }
+
+    return error;
+}

@@ -37,6 +37,7 @@ typedef enum
 static uint8_t           CavemanCaveTalk_Buffer[CAVEMAN_CAVE_TALK_BUFFER_SIZE];
 static const char *      kCavemanCaveTalk_LogTag         = "CAVE TALK";
 static bool              CavemanCaveTalk_Connected       = false;
+static bool              CavemanCaveTalk_WasArmed        = false;
 static Bsp_Millisecond_t CavemanCaveTalk_PreviousMessage = 0U;
 
 static CaveTalk_Error_t CavemanCaveTalk_Send(const void *const data, const size_t size);
@@ -95,8 +96,14 @@ void CavemanCaveTalk_Task(void)
         if (CavemanCaveTalk_Connected)
         {
             CavemanCaveTalk_Connected = false;
+            CavemanCaveTalk_WasArmed  = Rover_IsArmed();
             BspGpio_Write(BSP_GPIO_USER_PIN_COMMS_STATUS, BSP_GPIO_STATE_RESET);
             BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Disconnected");
+
+            if (CavemanCaveTalk_WasArmed)
+            {
+                (void)Rover_Dearm();
+            }
         }
 
         BSP_LOGGER_LOG_DEBUG(kCavemanCaveTalk_LogTag, "Connecting");
@@ -161,6 +168,11 @@ static void CavemanCaveTalk_HearOogaBooga(const cave_talk_Say ooga_booga)
             CavemanCaveTalk_Connected = true;
             BspGpio_Write(BSP_GPIO_USER_PIN_COMMS_STATUS, BSP_GPIO_STATE_SET);
             BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Connected");
+
+            if (CavemanCaveTalk_WasArmed)
+            {
+                (void)Rover_Arm();
+            }
         }
         break;
     default:

@@ -25,9 +25,6 @@ int main(void)
 {
     Caveman_Initialize();
 
-    /* TODO remove once arm message is implemented */
-    (void)Rover_Arm();
-
     while (true)
     {
         Rover_Task();

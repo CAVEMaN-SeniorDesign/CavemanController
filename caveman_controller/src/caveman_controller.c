@@ -51,11 +51,6 @@ static void Caveman_Initialize(void)
         BSP_LOGGER_LOG_ERROR(kCaveman_LogTag, "Failed to start CAVeTalk");
     }
 
-    /* Turn off headlights */
-    (void)BspGpio_Write(BSP_GPIO_USER_PIN_HEADLIGHTS_0, BSP_GPIO_STATE_RESET);
-    (void)BspGpio_Write(BSP_GPIO_USER_PIN_HEADLIGHTS_1, BSP_GPIO_STATE_RESET);
-    (void)BspGpio_Write(BSP_GPIO_USER_PIN_HEADLIGHTS_2, BSP_GPIO_STATE_RESET);
-
     /* Register headlights callback */
     (void)BspGpio_RegisterCallback(BSP_GPIO_USER_PIN_HEADLIGHTS_ENABLE, Caveman_HeadlightsCallback);
 

@@ -46,10 +46,6 @@ Bsp_Error_t BspGpio_RegisterCallback(const BspGpioUser_Pin_t pin, void (*callbac
     {
         error = BSP_ERROR_PERIPHERAL;
     }
-    else if (NULL == callback)
-    {
-        error = BSP_ERROR_NULL;
-    }
     else
     {
         BspGpioUser_HandleTable[pin].callback = callback;
@@ -64,10 +60,7 @@ void HAL_GPIO_EXTI_Callback(Bsp_GpioPin_t pin)
     Bsp_Gpio_t *      gpio = BspGpioUser_GetGpioHandle(pin);
     Bsp_Microsecond_t tick = BspTick_GetMicroseconds();
 
-    if ((NULL == gpio) || ((tick - gpio->previous) < gpio->debounce))
-    {
-    }
-    else
+    if ((NULL != gpio) && (NULL != gpio->callback) && ((tick - gpio->previous) >= gpio->debounce))
     {
         gpio->callback(pin);
         gpio->previous = tick;

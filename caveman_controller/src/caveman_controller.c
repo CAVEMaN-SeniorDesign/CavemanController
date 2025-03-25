@@ -59,8 +59,6 @@ static void Caveman_Initialize(void)
     /* Register headlights callback */
     (void)BspGpio_RegisterCallback(BSP_GPIO_USER_PIN_HEADLIGHTS_ENABLE, Caveman_HeadlightsCallback);
 
-    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0, GPIO_PIN_SET); /* Test IMU LED */
-
     BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Initialized");
 }
 

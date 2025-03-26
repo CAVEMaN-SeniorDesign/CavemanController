@@ -10,7 +10,7 @@ Bsp_Error_t BspGpio_Read(const BspGpioUser_Pin_t pin, Bsp_GpioState_t *const sta
 {
     Bsp_Error_t error = BSP_ERROR_NONE;
 
-    if ((pin >= BSP_GPIO_USER_PIN_MAX) || (BSP_GPIO_MODE_OUTPUT != BspGpioUser_HandleTable[pin].mode))
+    if ((pin >= BSP_GPIO_USER_PIN_MAX) || (BSP_GPIO_MODE_INPUT != BspGpioUser_HandleTable[pin].mode))
     {
         error = BSP_ERROR_PERIPHERAL;
     }

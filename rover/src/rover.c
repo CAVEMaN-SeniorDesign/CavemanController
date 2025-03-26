@@ -16,6 +16,7 @@ void Rover_Initialize(void)
 {
     (void)Rover_Dearm();
     (void)Rover4ws_EnableEncoders();
+    RoverImu_Initialize();
 }
 
 void Rover_Task(void)

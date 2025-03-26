@@ -6,6 +6,7 @@
 typedef enum
 {
     CAVEMAN_BUTTONS_BUTTON_HEADLIGHTS,
+    CAVEMAN_BUTTONS_BUTTON_START,
     CAVEMAN_BUTTONS_BUTTON_MAX
 } CavemanButtons_Button_t;
 

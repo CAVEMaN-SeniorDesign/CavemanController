@@ -21,16 +21,26 @@ static const char *kCavemanButtons_LogTag = "BUTTONS";
 
 static void CavemanButtons_OnPress(const Bsp_GpioPin_t pin);
 static void CavemanButtons_HeadlightsCallback(const BspGpioUser_Pin_t pin);
+static void CavemanButtons_StartCallback(const BspGpioUser_Pin_t pin);
 
 static CavemanButtons_Handle_t CavemanButtons_HandleTable[CAVEMAN_BUTTONS_BUTTON_MAX] = {
     [CAVEMAN_BUTTONS_BUTTON_HEADLIGHTS] = {
         .pin            = BSP_GPIO_USER_PIN_HEADLIGHTS_ENABLE,
         .trigger_state  = BSP_GPIO_STATE_SET,
-        .interval_min   = 100000U,
-        .interval_max   = 200000U,
+        .interval_min   = 10000U, /* TODO SD-130 tune for normal button press */
+        .interval_max   = 100000U,
         .previous_state = BSP_GPIO_STATE_RESET,
         .previous_tick  = 0U,
         .on_press       = CavemanButtons_HeadlightsCallback,
+    },
+    [CAVEMAN_BUTTONS_BUTTON_START] = {
+        .pin            = BSP_GPIO_USER_PIN_START,
+        .trigger_state  = BSP_GPIO_STATE_SET,
+        .interval_min   = 0U,
+        .interval_max   = UINT64_MAX,
+        .previous_state = BSP_GPIO_STATE_RESET,
+        .previous_tick  = 0U,
+        .on_press       = CavemanButtons_StartCallback,
     },
 };
 
@@ -68,10 +78,15 @@ static void CavemanButtons_OnPress(const Bsp_GpioPin_t pin)
     {
         button = CAVEMAN_BUTTONS_BUTTON_HEADLIGHTS;
     }
+    else if (pin == BspGpioUser_HandleTable[CavemanButtons_HandleTable[CAVEMAN_BUTTONS_BUTTON_START].pin].gpio_pin)
+    {
+        button = CAVEMAN_BUTTONS_BUTTON_START;
+    }
     /* TODO SD-130 add other buttons here */
 
     if ((button >= CAVEMAN_BUTTONS_BUTTON_MAX) || (BSP_ERROR_NONE != BspGpio_Read(CavemanButtons_HandleTable[button].pin, &gpio_state)))
     {
+        BSP_LOGGER_LOG_ERROR(kCavemanButtons_LogTag, "Failed to read GPIO");
     }
     else if (gpio_state == CavemanButtons_HandleTable[button].trigger_state)
     {
@@ -100,4 +115,11 @@ static void CavemanButtons_HeadlightsCallback(const BspGpioUser_Pin_t pin)
     (void)BspGpio_Toggle(BSP_GPIO_USER_PIN_HEADLIGHTS_2);
 
     BSP_LOGGER_LOG_INFO(kCavemanButtons_LogTag, "Toggle headlights");
+}
+
+static void CavemanButtons_StartCallback(const BspGpioUser_Pin_t pin)
+{
+    BSP_UNUSED(pin);
+
+    BSP_LOGGER_LOG_DEBUG(kCavemanButtons_LogTag, "Start button pressed");
 }

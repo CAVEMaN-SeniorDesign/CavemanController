@@ -51,6 +51,7 @@ static void Caveman_Initialize(void)
     }
 
     CavemanButtons_Enable(CAVEMAN_BUTTONS_BUTTON_HEADLIGHTS);
+    CavemanButtons_Enable(CAVEMAN_BUTTONS_BUTTON_START);
 
     BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Initialized");
 }

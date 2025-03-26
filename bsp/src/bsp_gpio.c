@@ -6,6 +6,22 @@
 #include "bsp_gpio_user.h"
 #include "bsp_tick.h"
 
+Bsp_Error_t BspGpio_Read(const BspGpioUser_Pin_t pin, Bsp_GpioState_t *const state)
+{
+    Bsp_Error_t error = BSP_ERROR_NONE;
+
+    if ((pin >= BSP_GPIO_USER_PIN_MAX) || (BSP_GPIO_MODE_OUTPUT != BspGpioUser_HandleTable[pin].mode))
+    {
+        error = BSP_ERROR_PERIPHERAL;
+    }
+    else
+    {
+        *state = (Bsp_GpioState_t)HAL_GPIO_ReadPin(BspGpioUser_HandleTable[pin].gpio_port, BspGpioUser_HandleTable[pin].gpio_pin);
+    }
+
+    return error;
+}
+
 Bsp_Error_t BspGpio_Write(const BspGpioUser_Pin_t pin, const Bsp_GpioState_t state)
 {
     Bsp_Error_t error = BSP_ERROR_NONE;

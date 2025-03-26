@@ -3,8 +3,10 @@
 
 #include <stdbool.h>
 
-bool RoverImuConfig_Initialize(void);
-bool RoverImuConfig_ReadAccelerometer(double *const x, double *const y, double *const z);
-bool RoverImuConfig_ReadGyroscope(double *const x, double *const y, double *const z);
+#include "rover.h"
+
+Rover_Error_t RoverImuConfig_Initialize(void);
+Rover_Error_t RoverImuConfig_ReadAccelerometer(Rover_AccelerometerReading_t *const reading);
+Rover_Error_t RoverImuConfig_ReadGyroscope(Rover_GyroscopeReading_t *const reading);
 
 #endif /* ROVER_IMU_CONFIG_H */

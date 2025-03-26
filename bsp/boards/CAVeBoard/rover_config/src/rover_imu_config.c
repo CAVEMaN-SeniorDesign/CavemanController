@@ -12,9 +12,19 @@
 #include "bsp_gpio_user.h"
 #include "bsp_logger.h"
 
+#include "rover.h"
+
 #define ROVER_IMU_BOOT_TIME     (Bsp_Millisecond_t)10U
-#define ROVER_IMU_TIMEOUT       (Bsp_Millisecond_t)1000U
+#define ROVER_IMU_TIMEOUT       (Bsp_Millisecond_t)100U
 #define ROVER_IMU_REGISTER_READ 0x80U
+
+typedef enum
+{
+    ROVER_IMU_CONFIG_AXIS_X,
+    ROVER_IMU_CONFIG_AXIS_Y,
+    ROVER_IMU_CONFIG_AXIS_Z,
+    ROVER_IMU_CONFIG_AXIS_MAX
+} RoverImuConfig_Axis_t;
 
 static const char * kRoverImuConfig_LogTag = "ROVER IMU CONFIG";
 
@@ -29,12 +39,12 @@ static stmdev_ctx_t RoverImuConfig_DeviceHandle = {
     .handle    = &hspi2,
 };
 
-static int16_t RoverImuConfig_RawAccelerometer[3U]; /* TODO magic number */
-static int16_t RoverImuConfig_RawGyroscope[3U];     /* TODO magic number */
+static int16_t RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_MAX];
+static int16_t RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_MAX];
 
-bool RoverImuConfig_Initialize(void)
+Rover_Error_t RoverImuConfig_Initialize(void)
 {
-    bool initialized = false;
+    Rover_Error_t error = ROVER_ERROR_NONE;
 
     /* Wait sensor boot time */
     Bsp_Delay(ROVER_IMU_BOOT_TIME);
@@ -44,6 +54,8 @@ bool RoverImuConfig_Initialize(void)
     lsm6dsv16x_device_id_get(&RoverImuConfig_DeviceHandle, &whoami);
     if (LSM6DSV16X_ID != whoami)
     {
+        error = ROVER_ERROR_PERIPHERAL;
+
         BSP_LOGGER_LOG_ERROR(kRoverImuConfig_LogTag, "Failed to detect IMU");
     }
     else
@@ -86,66 +98,58 @@ bool RoverImuConfig_Initialize(void)
         lsm6dsv16x_filt_xl_lp2_set(&RoverImuConfig_DeviceHandle, PROPERTY_ENABLE);
         lsm6dsv16x_filt_xl_lp2_bandwidth_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_XL_STRONG);
 
-        initialized = true;
-
         BSP_LOGGER_LOG_DEBUG(kRoverImuConfig_LogTag, "Initialized");
     }
 
-    return initialized;
+    return error;
 }
 
-bool RoverImuConfig_ReadAccelerometer(double *const x, double *const y, double *const z)
+Rover_Error_t RoverImuConfig_ReadAccelerometer(Rover_AccelerometerReading_t *const reading)
 {
-    bool read = false;
+    Rover_Error_t error = ROVER_ERROR_NULL;
 
-    if ((NULL == x) || (NULL == y) || (NULL == z))
-    {
-    }
-    else
+    if (NULL != reading)
     {
         RoverImuConfig_ReadAll();
 
         /* TODO convert to m/s^2 */
-        *x = (double)lsm6dsv16x_from_fs2_to_mg(RoverImuConfig_RawAccelerometer[0U]);
-        *y = (double)lsm6dsv16x_from_fs2_to_mg(RoverImuConfig_RawAccelerometer[1U]);
-        *z = (double)lsm6dsv16x_from_fs2_to_mg(RoverImuConfig_RawAccelerometer[2U]);
+        reading->x = (Rover_MetersPerSecondSquared_t)lsm6dsv16x_from_fs2_to_mg(RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_X]);
+        reading->y = (Rover_MetersPerSecondSquared_t)lsm6dsv16x_from_fs2_to_mg(RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_Y]);
+        reading->z = (Rover_MetersPerSecondSquared_t)lsm6dsv16x_from_fs2_to_mg(RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_Z]);
 
-        read = true;
+        error = ROVER_ERROR_NONE;
     }
 
-    return read;
+    return error;
 }
 
-bool RoverImuConfig_ReadGyroscope(double *const x, double *const y, double *const z)
+Rover_Error_t RoverImuConfig_ReadGyroscope(Rover_GyroscopeReading_t *const reading)
 {
-    bool read = false;
+    Rover_Error_t error = ROVER_ERROR_NULL;
 
-    if ((NULL == x) || (NULL == y) || (NULL == z))
-    {
-    }
-    else
+    if (NULL != reading)
     {
         RoverImuConfig_ReadAll();
 
         /* TODO convert to rad/s */
-        *x = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[0U]);
-        *y = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[1U]);
-        *z = (double)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[2U]);
+        reading->x = (Bsp_RadiansPerSecond_t)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_X]);
+        reading->y = (Bsp_RadiansPerSecond_t)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Y]);
+        reading->z = (Bsp_RadiansPerSecond_t)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Z]);
 
-        read = true;
+        error = ROVER_ERROR_NONE;
     }
 
-    return read;
+    return error;
 }
 
 static int32_t RoverImuConfig_Write(void *const handle, const uint8_t imu_register, const uint8_t *const data, const uint16_t size)
 {
-    BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_RESET);
+    (void)BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_RESET);
 
-    HAL_SPI_Transmit(handle, &imu_register, 1U, ROVER_IMU_TIMEOUT);
-    HAL_SPI_Transmit(handle, data, size, ROVER_IMU_TIMEOUT);
+    (void)HAL_SPI_Transmit(handle, &imu_register, 1U, ROVER_IMU_TIMEOUT);
+    (void)HAL_SPI_Transmit(handle, data, size, ROVER_IMU_TIMEOUT);
 
-    BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_SET);
+    (void)BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_SET);
 
     return 0;
 }
@@ -154,12 +158,12 @@ static int32_t RoverImuConfig_Read(void *const handle, const uint8_t imu_registe
 {
     uint8_t register_read = imu_register | ROVER_IMU_REGISTER_READ;
 
-    BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_RESET);
+    (void)BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_RESET);
 
-    HAL_SPI_Transmit(handle, &register_read, 1U, ROVER_IMU_TIMEOUT);
-    HAL_SPI_Receive(handle, data, size, ROVER_IMU_TIMEOUT);
+    (void)HAL_SPI_Transmit(handle, &register_read, 1U, ROVER_IMU_TIMEOUT);
+    (void)HAL_SPI_Receive(handle, data, size, ROVER_IMU_TIMEOUT);
 
-    BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_SET);
+    (void)BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_SET);
 
     return 0;
 }

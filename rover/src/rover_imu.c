@@ -9,11 +9,13 @@
 
 static const char * kRoverImu_LogTag = "ROVER IMU";
 
-void RoverImu_Initialize(void)
+Rover_Error_t RoverImu_Initialize(void)
 {
     (void)BspGpio_Write(BSP_GPIO_USER_PIN_IMU_STATUS, BSP_GPIO_STATE_RESET);
 
-    if (!RoverImuConfig_Initialize())
+    Rover_Error_t error = RoverImuConfig_Initialize();
+
+    if (ROVER_ERROR_NONE != error)
     {
         BSP_LOGGER_LOG_ERROR(kRoverImu_LogTag, "Failed to initialize");
     }
@@ -22,20 +24,17 @@ void RoverImu_Initialize(void)
         (void)BspGpio_Write(BSP_GPIO_USER_PIN_IMU_STATUS, BSP_GPIO_STATE_SET);
         BSP_LOGGER_LOG_INFO(kRoverImu_LogTag, "Initialized");
     }
+
+    return error;
 }
 
 Rover_Error_t RoverImu_ReadAccelerometer(Rover_AccelerometerReading_t *const reading)
 {
-    Rover_Error_t error = ROVER_ERROR_NONE;
+    Rover_Error_t error = ROVER_ERROR_NULL;
 
-    if (NULL == reading)
+    if (NULL != reading)
     {
-        error = ROVER_ERROR_NULL;
-    }
-    else
-    {
-        /* TODO return type */
-        RoverImuConfig_ReadAccelerometer(&reading->x, &reading->y, &reading->z);
+        error = RoverImuConfig_ReadAccelerometer(reading);
     }
 
     return error;
@@ -43,16 +42,11 @@ Rover_Error_t RoverImu_ReadAccelerometer(Rover_AccelerometerReading_t *const rea
 
 Rover_Error_t RoverImu_ReadGyroscope(Rover_GyroscopeReading_t *const reading)
 {
-    Rover_Error_t error = ROVER_ERROR_NONE;
+    Rover_Error_t error = ROVER_ERROR_NULL;
 
-    if (NULL == reading)
+    if (NULL != reading)
     {
-        error = ROVER_ERROR_NULL;
-    }
-    else
-    {
-        /* TODO return type */
-        RoverImuConfig_ReadGyroscope(&reading->x, &reading->y, &reading->z);
+        error = RoverImuConfig_ReadGyroscope(reading);
     }
 
     return error;

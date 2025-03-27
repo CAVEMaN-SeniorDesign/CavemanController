@@ -19,8 +19,10 @@
 #define ROVER_IMU_CONFIG_REGISTER_READ                    0x80U
 #define ROVER_IMU_CONFIG_FS2_TO_METERS_PER_SECOND_SQUARED (double)5.985e-4
 #define ROVER_IMU_CONFIG_125DPS_TO_RADIANS_PER_SECOND     (double)6.658e-5
+#define ROVER_IMU_CONFIG_ERROR_NONE                       (int32_t)0
 
 typedef int32_t RoverImuConfig_Error_t;
+typedef int16_t RoverImuConfig_RawData_t;
 
 typedef enum
 {
@@ -30,14 +32,23 @@ typedef enum
     ROVER_IMU_CONFIG_AXIS_MAX
 } RoverImuConfig_Axis_t;
 
+typedef enum
+{
+    ROVER_IMU_CONFIG_FIFO_DATA_X = 0U,
+    ROVER_IMU_CONFIG_FIFO_DATA_Y = 2U,
+    ROVER_IMU_CONFIG_FIFO_DATA_Z = 4U,
+    ROVER_IMU_CONFIG_FIFO_DATA_MAX = 6U
+} RoverImuConfig_FifoData_t;
+
 static const char * kRoverImuConfig_LogTag = "ROVER IMU CONFIG";
 
 static int32_t RoverImuConfig_Write(void *const handle, const uint8_t imu_register, const uint8_t *const data, const uint16_t size);
 static int32_t RoverImuConfig_Read(void *const handle, const uint8_t imu_register, uint8_t *const data, const uint16_t size);
 static Rover_Error_t RoverImuConfig_ReadAll(void);
 static inline Rover_Error_t RoverImuConfig_ImuToRoverError(const RoverImuConfig_Error_t error);
-static inline Rover_MetersPerSecondSquared_t RoverImuConfig_Fs2ToMetersPerSecondSquared(const int16_t fs2);
-static inline Rover_MetersPerSecondSquared_t RoverImuConfig_125dpsToRadiansPerSecond(const int16_t dps);
+static inline float RoverImuConfig_FsToMilliG(const RoverImuConfig_RawData_t fs);
+static inline Rover_MetersPerSecondSquared_t RoverImuConfig_Fs2ToMetersPerSecondSquared(const RoverImuConfig_RawData_t fs2);
+static inline Rover_MetersPerSecondSquared_t RoverImuConfig_125dpsToRadiansPerSecond(const RoverImuConfig_RawData_t dps);
 
 static stmdev_ctx_t RoverImuConfig_DeviceHandle = {
     .write_reg = RoverImuConfig_Write,
@@ -46,12 +57,12 @@ static stmdev_ctx_t RoverImuConfig_DeviceHandle = {
     .handle    = &hspi2,
 };
 
-static int16_t RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_MAX];
-static int16_t RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_MAX];
+static RoverImuConfig_RawData_t RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_MAX];
+static RoverImuConfig_RawData_t RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_MAX];
 
 Rover_Error_t RoverImuConfig_Initialize(void)
 {
-    RoverImuConfig_Error_t error = 0;
+    RoverImuConfig_Error_t error = ROVER_IMU_CONFIG_ERROR_NONE;
 
     /* Wait sensor boot time */
     Bsp_Delay(ROVER_IMU_CONFIG_BOOT_TIME);
@@ -104,15 +115,118 @@ Rover_Error_t RoverImuConfig_Initialize(void)
         error                      |= lsm6dsv16x_filt_gy_lp1_bandwidth_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_GY_ULTRA_LIGHT);
         error                      |= lsm6dsv16x_filt_xl_lp2_set(&RoverImuConfig_DeviceHandle, PROPERTY_ENABLE);
         error                      |= lsm6dsv16x_filt_xl_lp2_bandwidth_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_XL_STRONG);
+
+        /* TODO SD-299 calibrate */
     }
 
-    if (0 != error)
+    if (ROVER_IMU_CONFIG_ERROR_NONE != error)
     {
-        BSP_LOGGER_LOG_DEBUG(kRoverImuConfig_LogTag, "Failed to initialize");
+        BSP_LOGGER_LOG_ERROR(kRoverImuConfig_LogTag, "Failed to initialize");
     }
     else
     {
         BSP_LOGGER_LOG_DEBUG(kRoverImuConfig_LogTag, "Initialized");
+    }
+
+    return RoverImuConfig_ImuToRoverError(error);
+}
+
+Rover_Error_t RoverImuConfig_Calibrate(void)
+{
+    RoverImuConfig_Error_t    error       = ROVER_IMU_CONFIG_ERROR_NONE;
+    lsm6dsv16x_fifo_status_t  fifo_status = {
+        0U
+    };
+    uint16_t                  xl_samples                         = 0U;
+    uint16_t                  gy_samples                         = 0U;
+    int32_t                   xl_data[ROVER_IMU_CONFIG_AXIS_MAX] = {
+        0U
+    };
+    int32_t                   gy_data[ROVER_IMU_CONFIG_AXIS_MAX] = {
+        0U
+    };
+    lsm6dsv16x_data_rate_t    xl_data_rate;
+    lsm6dsv16x_data_rate_t    gy_data_rate;
+    lsm6dsv16x_fifo_mode_t    fifo_mode;
+    lsm6dsv16x_xl_offset_mg_t xl_offset;
+
+    /* Save existing data rate */
+    error |= lsm6dsv16x_xl_data_rate_get(&RoverImuConfig_DeviceHandle, &xl_data_rate);
+    error |= lsm6dsv16x_gy_data_rate_get(&RoverImuConfig_DeviceHandle, &gy_data_rate);
+    /* TODO SD-299 Save FIFO batch rate */
+
+    /* Save exisitng FIFO mode */
+    error |= lsm6dsv16x_fifo_mode_get(&RoverImuConfig_DeviceHandle, &fifo_mode);
+
+    /* Set new data rate for calibration period (1s~2s) to fill FIFO */
+    error |= lsm6dsv16x_xl_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_480Hz);
+    error |= lsm6dsv16x_gy_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_480Hz);
+    error |= lsm6dsv16x_fifo_xl_batch_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_XL_BATCHED_AT_480Hz);
+    error |= lsm6dsv16x_fifo_gy_batch_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_GY_BATCHED_AT_480Hz);
+
+    /* Set FIFO to FIFO mode */
+    error |= lsm6dsv16x_fifo_mode_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_FIFO_MODE);
+
+    /* Wait until FIFO is full */
+    while (0U == fifo_status.fifo_ovr)
+    {
+        error |= lsm6dsv16x_fifo_status_get(&RoverImuConfig_DeviceHandle, &fifo_status);
+    }
+
+    /* Read and average FIFO samples */
+    for (uint16_t i = 0U; i < fifo_status.fifo_level; i++)
+    {
+        lsm6dsv16x_fifo_out_raw_t fifo_data;
+        error |= lsm6dsv16x_fifo_out_raw_get(&RoverImuConfig_DeviceHandle, &fifo_data);
+
+        RoverImuConfig_RawData_t x = *(RoverImuConfig_RawData_t *)&fifo_data.data[ROVER_IMU_CONFIG_FIFO_DATA_X];
+        RoverImuConfig_RawData_t y = *(RoverImuConfig_RawData_t *)&fifo_data.data[ROVER_IMU_CONFIG_FIFO_DATA_Y];
+        RoverImuConfig_RawData_t z = *(RoverImuConfig_RawData_t *)&fifo_data.data[ROVER_IMU_CONFIG_FIFO_DATA_Z];
+
+        switch (fifo_data.tag)
+        {
+        case LSM6DSV16X_XL_NC_TAG:
+            xl_data[ROVER_IMU_CONFIG_AXIS_X] += (int32_t)x;
+            xl_data[ROVER_IMU_CONFIG_AXIS_Y] += (int32_t)y;
+            xl_data[ROVER_IMU_CONFIG_AXIS_Z] += (int32_t)z;
+            xl_samples++;
+            break;
+        case LSM6DSV16X_GY_NC_TAG:
+            gy_data[ROVER_IMU_CONFIG_AXIS_X] += (int32_t)x;
+            gy_data[ROVER_IMU_CONFIG_AXIS_Y] += (int32_t)y;
+            gy_data[ROVER_IMU_CONFIG_AXIS_Z] += (int32_t)z;
+            gy_samples++;
+            break;
+        default:
+            break;
+        }
+    }
+
+    /* Calculate and write accelerometer offset */
+    xl_offset.x_mg = RoverImuConfig_FsToMilliG((int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_X] / (int32_t)xl_samples));
+    xl_offset.y_mg = RoverImuConfig_FsToMilliG((int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_Y] / (int32_t)xl_samples));
+    xl_offset.z_mg = RoverImuConfig_FsToMilliG((int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_Z] / (int32_t)xl_samples)); /* TODO SD-299 account for gravity */
+    error         |= lsm6dsv16x_xl_offset_mg_set(&RoverImuConfig_DeviceHandle, xl_offset);
+    error         |= lsm6dsv16x_xl_offset_on_out_set(&RoverImuConfig_DeviceHandle, 1U);
+
+    /* TODO SD-299 Calculate and write? gyroscope offset */
+
+    /* Restore data rate */
+    error |= lsm6dsv16x_xl_data_rate_set(&RoverImuConfig_DeviceHandle, xl_data_rate);
+    error |= lsm6dsv16x_gy_data_rate_set(&RoverImuConfig_DeviceHandle, gy_data_rate);
+
+    /* TODO SD-299 Restore FIFO batch rate */
+
+    /* Restore FIFO mode */
+    error |= lsm6dsv16x_fifo_mode_set(&RoverImuConfig_DeviceHandle, fifo_mode);
+
+    if (ROVER_IMU_CONFIG_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kRoverImuConfig_LogTag, "Failed to calibrate");
+    }
+    else
+    {
+        BSP_LOGGER_LOG_DEBUG(kRoverImuConfig_LogTag, "Calibrated");
     }
 
     return RoverImuConfig_ImuToRoverError(error);
@@ -152,11 +266,11 @@ Rover_Error_t RoverImuConfig_ReadGyroscope(Rover_GyroscopeReading_t *const readi
 
 static RoverImuConfig_Error_t RoverImuConfig_Write(void *const handle, const uint8_t imu_register, const uint8_t *const data, const uint16_t size)
 {
-    RoverImuConfig_Error_t error = 0;
+    RoverImuConfig_Error_t error = ROVER_IMU_CONFIG_ERROR_NONE;
 
-    if ((BSP_ERROR_NONE != BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_RESET)) &&
-        (BSP_ERROR_NONE != (Bsp_Error_t)HAL_SPI_Transmit(handle, &imu_register, 1U, ROVER_IMU_CONFIG_TIMEOUT)) &&
-        (BSP_ERROR_NONE != (Bsp_Error_t)HAL_SPI_Transmit(handle, data, size, ROVER_IMU_CONFIG_TIMEOUT)) &&
+    if ((BSP_ERROR_NONE != BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_RESET)) ||
+        (BSP_ERROR_NONE != (Bsp_Error_t)HAL_SPI_Transmit(handle, &imu_register, 1U, ROVER_IMU_CONFIG_TIMEOUT)) ||
+        (BSP_ERROR_NONE != (Bsp_Error_t)HAL_SPI_Transmit(handle, data, size, ROVER_IMU_CONFIG_TIMEOUT)) ||
         (BSP_ERROR_NONE != BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_SET)))
     {
         error = 1;
@@ -167,12 +281,12 @@ static RoverImuConfig_Error_t RoverImuConfig_Write(void *const handle, const uin
 
 static RoverImuConfig_Error_t RoverImuConfig_Read(void *const handle, const uint8_t imu_register, uint8_t *const data, const uint16_t size)
 {
-    RoverImuConfig_Error_t error         = 0;
+    RoverImuConfig_Error_t error         = ROVER_IMU_CONFIG_ERROR_NONE;
     uint8_t                register_read = imu_register | ROVER_IMU_CONFIG_REGISTER_READ;
 
-    if ((BSP_ERROR_NONE != BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_RESET)) &&
-        (BSP_ERROR_NONE != (Bsp_Error_t)HAL_SPI_Transmit(handle, &register_read, 1U, ROVER_IMU_CONFIG_TIMEOUT)) &&
-        (BSP_ERROR_NONE != (Bsp_Error_t)HAL_SPI_Receive(handle, data, size, ROVER_IMU_CONFIG_TIMEOUT)) &&
+    if ((BSP_ERROR_NONE != BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_RESET)) ||
+        (BSP_ERROR_NONE != (Bsp_Error_t)HAL_SPI_Transmit(handle, &register_read, 1U, ROVER_IMU_CONFIG_TIMEOUT)) ||
+        (BSP_ERROR_NONE != (Bsp_Error_t)HAL_SPI_Receive(handle, data, size, ROVER_IMU_CONFIG_TIMEOUT)) ||
         (BSP_ERROR_NONE != BspGpio_Write(BSP_GPIO_USER_PIN_IMU_CS, BSP_GPIO_STATE_SET)))
     {
         error = 1;
@@ -183,7 +297,7 @@ static RoverImuConfig_Error_t RoverImuConfig_Read(void *const handle, const uint
 
 static Rover_Error_t RoverImuConfig_ReadAll(void)
 {
-    RoverImuConfig_Error_t  error = 0;
+    RoverImuConfig_Error_t  error = ROVER_IMU_CONFIG_ERROR_NONE;
     lsm6dsv16x_data_ready_t data_ready;
 
     lsm6dsv16x_flag_data_ready_get(&RoverImuConfig_DeviceHandle, &data_ready);
@@ -205,7 +319,7 @@ static inline Rover_Error_t RoverImuConfig_ImuToRoverError(const RoverImuConfig_
 {
     Rover_Error_t rover_error = ROVER_ERROR_NONE;
 
-    if (0 != error)
+    if (ROVER_IMU_CONFIG_ERROR_NONE != error)
     {
         rover_error = ROVER_ERROR_PERIPHERAL;
     }
@@ -213,12 +327,40 @@ static inline Rover_Error_t RoverImuConfig_ImuToRoverError(const RoverImuConfig_
     return rover_error;
 }
 
-static inline Rover_MetersPerSecondSquared_t RoverImuConfig_Fs2ToMetersPerSecondSquared(const int16_t fs2)
+static inline float RoverImuConfig_FsToMilliG(const RoverImuConfig_RawData_t fs)
+{
+    float                      mg = 0.0f;
+    lsm6dsv16x_xl_full_scale_t xl_full_scale;
+
+    (void)lsm6dsv16x_xl_full_scale_get(&RoverImuConfig_DeviceHandle, &xl_full_scale);
+
+    switch (xl_full_scale)
+    {
+    case LSM6DSV16X_2g:
+        mg = lsm6dsv16x_from_fs2_to_mg(fs);
+        break;
+    case LSM6DSV16X_4g:
+        mg = lsm6dsv16x_from_fs4_to_mg(fs);
+        break;
+    case LSM6DSV16X_8g:
+        mg = lsm6dsv16x_from_fs8_to_mg(fs);
+        break;
+    case LSM6DSV16X_16g:
+        mg = lsm6dsv16x_from_fs16_to_mg(fs);
+        break;
+    default:
+        break;
+    }
+
+    return mg;
+}
+
+static inline Rover_MetersPerSecondSquared_t RoverImuConfig_Fs2ToMetersPerSecondSquared(const RoverImuConfig_RawData_t fs2)
 {
     return fs2 * ROVER_IMU_CONFIG_FS2_TO_METERS_PER_SECOND_SQUARED;
 }
 
-static inline Rover_MetersPerSecondSquared_t RoverImuConfig_125dpsToRadiansPerSecond(const int16_t dps)
+static inline Rover_MetersPerSecondSquared_t RoverImuConfig_125dpsToRadiansPerSecond(const RoverImuConfig_RawData_t dps)
 {
     return dps * ROVER_IMU_CONFIG_125DPS_TO_RADIANS_PER_SECOND;
 }

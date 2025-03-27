@@ -18,6 +18,7 @@
 #define ROVER_IMU_CONFIG_TIMEOUT                          (Bsp_Millisecond_t)10U
 #define ROVER_IMU_CONFIG_REGISTER_READ                    0x80U
 #define ROVER_IMU_CONFIG_FS2_TO_METERS_PER_SECOND_SQUARED (double)5.985e-4
+#define ROVER_IMU_CONFIG_125DPS_TO_RADIANS_PER_SECOND     (double)6.658e-5
 
 typedef enum
 {
@@ -33,6 +34,7 @@ static int32_t RoverImuConfig_Write(void *const handle, const uint8_t imu_regist
 static int32_t RoverImuConfig_Read(void *const handle, const uint8_t imu_register, uint8_t *const data, const uint16_t size);
 static void RoverImuConfig_ReadAll(void);
 static inline Rover_MetersPerSecondSquared_t RoverImuConfig_Fs2ToMetersPerSecondSquared(const int16_t fs2);
+static inline Rover_MetersPerSecondSquared_t RoverImuConfig_125dpsToRadiansPerSecond(const int16_t dps);
 
 static stmdev_ctx_t RoverImuConfig_DeviceHandle = {
     .write_reg = RoverImuConfig_Write,
@@ -132,10 +134,9 @@ Rover_Error_t RoverImuConfig_ReadGyroscope(Rover_GyroscopeReading_t *const readi
     {
         RoverImuConfig_ReadAll();
 
-        /* TODO convert to rad/s */
-        reading->x = (Bsp_RadiansPerSecond_t)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_X]);
-        reading->y = (Bsp_RadiansPerSecond_t)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Y]);
-        reading->z = (Bsp_RadiansPerSecond_t)lsm6dsv16x_from_fs2000_to_mdps(RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Z]);
+        reading->x = RoverImuConfig_125dpsToRadiansPerSecond(RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_X]);
+        reading->y = RoverImuConfig_125dpsToRadiansPerSecond(RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Y]);
+        reading->z = RoverImuConfig_125dpsToRadiansPerSecond(RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Z]);
 
         error = ROVER_ERROR_NONE;
     }
@@ -188,4 +189,9 @@ static void RoverImuConfig_ReadAll(void)
 static inline Rover_MetersPerSecondSquared_t RoverImuConfig_Fs2ToMetersPerSecondSquared(const int16_t fs2)
 {
     return fs2 * ROVER_IMU_CONFIG_FS2_TO_METERS_PER_SECOND_SQUARED;
+}
+
+static inline Rover_MetersPerSecondSquared_t RoverImuConfig_125dpsToRadiansPerSecond(const int16_t dps)
+{
+    return dps * ROVER_IMU_CONFIG_125DPS_TO_RADIANS_PER_SECOND;
 }

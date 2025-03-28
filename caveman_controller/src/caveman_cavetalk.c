@@ -50,6 +50,10 @@ static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed,
 static void CavemanCaveTalk_HearCameraMovement(const CaveTalk_Radian_t pan, const CaveTalk_Radian_t tilt);
 static void CavemanCaveTalk_HearLights(const bool headlights);
 static void CavemanCaveTalk_HearArm(const bool arm);
+static void CavemanCaveTalk_HearConfigMotors(const cave_talk_Motor *const motor_wheel_0,
+                                             const cave_talk_Motor *const motor_wheel_1,
+                                             const cave_talk_Motor *const motor_wheel_2,
+                                             const cave_talk_Motor *const motor_wheel_3);
 static void CavemanCaveTalk_HearConfigEncoders(const cave_talk_ConfigEncoder *const encoder_wheel_0,
                                                const cave_talk_ConfigEncoder *const encoder_wheel_1,
                                                const cave_talk_ConfigEncoder *const encoder_wheel_2,
@@ -74,7 +78,7 @@ static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
         .hear_log                 = NULL,
         .hear_config_servo_wheels = NULL,
         .hear_config_servo_cams   = NULL,
-        .hear_config_motors       = NULL,
+        .hear_config_motors       = CavemanCaveTalk_HearConfigMotors,
         .hear_config_encoders     = CavemanCaveTalk_HearConfigEncoders,
         .hear_config_log          = CavemanCaveTalk_HearConfigLog,
     },
@@ -254,6 +258,49 @@ static void CavemanCaveTalk_HearArm(const bool arm)
     }
 }
 
+static void CavemanCaveTalk_HearConfigMotors(const cave_talk_Motor *const motor_wheel_0,
+                                             const cave_talk_Motor *const motor_wheel_1,
+                                             const cave_talk_Motor *const motor_wheel_2,
+                                             const cave_talk_Motor *const motor_wheel_3)
+{
+    CavemanCaveTalk_HeardMessage("config motors");
+
+    Rover_Error_t error = ROVER_ERROR_NULL;
+
+    if ((NULL != motor_wheel_0) && (NULL != motor_wheel_1) && (NULL != motor_wheel_2) && (NULL != motor_wheel_3))
+    {
+        error = Rover4ws_ErrorCheck(Rover4ws_ConfigureMotor(ROVER_4WS_MOTOR_0,
+                                                            motor_wheel_0->min_duty_cycle_percentage,
+                                                            motor_wheel_0->max_duty_cycle_percentage,
+                                                            motor_wheel_0->min_speed_loaded_meters_per_second,
+                                                            motor_wheel_0->max_speed_loaded_meters_per_second),
+                                    Rover4ws_ConfigureMotor(ROVER_4WS_MOTOR_1,
+                                                            motor_wheel_1->min_duty_cycle_percentage,
+                                                            motor_wheel_1->max_duty_cycle_percentage,
+                                                            motor_wheel_1->min_speed_loaded_meters_per_second,
+                                                            motor_wheel_1->max_speed_loaded_meters_per_second),
+                                    Rover4ws_ConfigureMotor(ROVER_4WS_MOTOR_2,
+                                                            motor_wheel_2->min_duty_cycle_percentage,
+                                                            motor_wheel_2->max_duty_cycle_percentage,
+                                                            motor_wheel_2->min_speed_loaded_meters_per_second,
+                                                            motor_wheel_2->max_speed_loaded_meters_per_second),
+                                    Rover4ws_ConfigureMotor(ROVER_4WS_MOTOR_3,
+                                                            motor_wheel_3->min_duty_cycle_percentage,
+                                                            motor_wheel_3->max_duty_cycle_percentage,
+                                                            motor_wheel_3->min_speed_loaded_meters_per_second,
+                                                            motor_wheel_3->max_speed_loaded_meters_per_second));
+    }
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to configure encoders with error %d", (int)error);
+    }
+    else
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Encoders configured");
+    }
+}
+
 static void CavemanCaveTalk_HearConfigEncoders(const cave_talk_ConfigEncoder *const encoder_wheel_0,
                                                const cave_talk_ConfigEncoder *const encoder_wheel_1,
                                                const cave_talk_ConfigEncoder *const encoder_wheel_2,
@@ -261,21 +308,23 @@ static void CavemanCaveTalk_HearConfigEncoders(const cave_talk_ConfigEncoder *co
 {
     CavemanCaveTalk_HeardMessage("config encoders");
 
+    Rover_Error_t error = ROVER_ERROR_NULL;
+
     if ((NULL != encoder_wheel_0) && (NULL != encoder_wheel_1) && (NULL != encoder_wheel_2) && (NULL != encoder_wheel_3))
     {
-        Rover_Error_t error = Rover4ws_ErrorCheck(Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_0, encoder_wheel_0->smoothing_factor),
-                                                  Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_1, encoder_wheel_1->smoothing_factor),
-                                                  Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_2, encoder_wheel_2->smoothing_factor),
-                                                  Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_3, encoder_wheel_3->smoothing_factor));
+        error = Rover4ws_ErrorCheck(Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_0, encoder_wheel_0->smoothing_factor),
+                                    Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_1, encoder_wheel_1->smoothing_factor),
+                                    Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_2, encoder_wheel_2->smoothing_factor),
+                                    Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_3, encoder_wheel_3->smoothing_factor));
+    }
 
-        if (ROVER_ERROR_NONE != error)
-        {
-            BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to configure encoders with error %d", (int)error);
-        }
-        else
-        {
-            BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Encoders configured");
-        }
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to configure encoders with error %d", (int)error);
+    }
+    else
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Encoders configured");
     }
 }
 

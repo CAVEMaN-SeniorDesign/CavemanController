@@ -16,6 +16,7 @@
 
 #define ROVER_IMU_CONFIG_BOOT_TIME                        (Bsp_Millisecond_t)10U
 #define ROVER_IMU_CONFIG_TIMEOUT                          (Bsp_Millisecond_t)10U
+#define ROVER_IMU_CONFIG_CALIBRATION_SETTLE_TIME          (Bsp_Millisecond_t)100U
 #define ROVER_IMU_CONFIG_REGISTER_READ                    0x80U
 #define ROVER_IMU_CONFIG_FS2_TO_METERS_PER_SECOND_SQUARED (double)5.985e-4
 #define ROVER_IMU_CONFIG_125DPS_TO_RADIANS_PER_SECOND     (double)6.658e-5
@@ -40,7 +41,7 @@ typedef enum
     ROVER_IMU_CONFIG_FIFO_DATA_MAX = 6U
 } RoverImuConfig_FifoData_t;
 
-static const char * kRoverImuConfig_LogTag = "ROVER IMU CONFIG";
+static const char *kRoverImuConfig_LogTag = "ROVER IMU CONFIG";
 
 static int32_t RoverImuConfig_Write(void *const handle, const uint8_t imu_register, const uint8_t *const data, const uint16_t size);
 static int32_t RoverImuConfig_Read(void *const handle, const uint8_t imu_register, uint8_t *const data, const uint16_t size);
@@ -57,8 +58,28 @@ static stmdev_ctx_t RoverImuConfig_DeviceHandle = {
     .handle    = &hspi2,
 };
 
-static RoverImuConfig_RawData_t RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_MAX];
-static RoverImuConfig_RawData_t RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_MAX];
+static RoverImuConfig_RawData_t RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_MAX] = {
+    [ROVER_IMU_CONFIG_AXIS_X] = 0,
+    [ROVER_IMU_CONFIG_AXIS_Y] = 0,
+    [ROVER_IMU_CONFIG_AXIS_Z] = 0
+};
+static RoverImuConfig_RawData_t RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_MAX] = {
+    [ROVER_IMU_CONFIG_AXIS_X] = 0,
+    [ROVER_IMU_CONFIG_AXIS_Y] = 0,
+    [ROVER_IMU_CONFIG_AXIS_Z] = 0
+};
+
+/* Onboard registers may not have enough precision to store offset */
+static RoverImuConfig_RawData_t RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_MAX] = {
+    [ROVER_IMU_CONFIG_AXIS_X] = 0,
+    [ROVER_IMU_CONFIG_AXIS_Y] = 0,
+    [ROVER_IMU_CONFIG_AXIS_Z] = 0
+};
+static RoverImuConfig_RawData_t RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_MAX] = {
+    [ROVER_IMU_CONFIG_AXIS_X] = 0,
+    [ROVER_IMU_CONFIG_AXIS_Y] = 0,
+    [ROVER_IMU_CONFIG_AXIS_Z] = 0
+};
 
 Rover_Error_t RoverImuConfig_Initialize(void)
 {
@@ -115,17 +136,17 @@ Rover_Error_t RoverImuConfig_Initialize(void)
         error                      |= lsm6dsv16x_filt_gy_lp1_bandwidth_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_GY_ULTRA_LIGHT);
         error                      |= lsm6dsv16x_filt_xl_lp2_set(&RoverImuConfig_DeviceHandle, PROPERTY_ENABLE);
         error                      |= lsm6dsv16x_filt_xl_lp2_bandwidth_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_XL_STRONG);
-
-        /* TODO SD-299 calibrate */
-        RoverImuConfig_Calibrate();
     }
 
-    if (ROVER_IMU_CONFIG_ERROR_NONE != error)
+    if ((ROVER_IMU_CONFIG_ERROR_NONE != error) || (ROVER_ERROR_NONE != RoverImuConfig_Calibrate()))
     {
+        error = 1;
+
         BSP_LOGGER_LOG_ERROR(kRoverImuConfig_LogTag, "Failed to initialize");
     }
     else
     {
+
         BSP_LOGGER_LOG_DEBUG(kRoverImuConfig_LogTag, "Initialized");
     }
 
@@ -151,7 +172,8 @@ Rover_Error_t RoverImuConfig_Calibrate(void)
     lsm6dsv16x_fifo_xl_batch_t xl_fifo_batch;
     lsm6dsv16x_fifo_gy_batch_t gy_fifo_batch;
     lsm6dsv16x_fifo_mode_t     fifo_mode;
-    lsm6dsv16x_xl_offset_mg_t  xl_offset;
+
+    BSP_LOGGER_LOG_DEBUG(kRoverImuConfig_LogTag, "Calibrating");
 
     /* Save existing data rate */
     error |= lsm6dsv16x_xl_data_rate_get(&RoverImuConfig_DeviceHandle, &xl_data_rate);
@@ -167,6 +189,8 @@ Rover_Error_t RoverImuConfig_Calibrate(void)
     error |= lsm6dsv16x_gy_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_240Hz);
     error |= lsm6dsv16x_fifo_xl_batch_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_XL_BATCHED_AT_240Hz);
     error |= lsm6dsv16x_fifo_gy_batch_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_GY_BATCHED_AT_240Hz);
+
+    Bsp_Delay(ROVER_IMU_CONFIG_CALIBRATION_SETTLE_TIME);
 
     /* Set FIFO to FIFO mode */
     error |= lsm6dsv16x_fifo_mode_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_FIFO_MODE);
@@ -206,14 +230,15 @@ Rover_Error_t RoverImuConfig_Calibrate(void)
         }
     }
 
-    /* Calculate and write accelerometer offset */
-    xl_offset.x_mg = RoverImuConfig_FsToMilliG((int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_X] / (int32_t)xl_samples));
-    xl_offset.y_mg = RoverImuConfig_FsToMilliG((int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_Y] / (int32_t)xl_samples));
-    xl_offset.z_mg = RoverImuConfig_FsToMilliG((int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_Z] / (int32_t)xl_samples)); /* TODO SD-299 account for gravity */
-    error         |= lsm6dsv16x_xl_offset_mg_set(&RoverImuConfig_DeviceHandle, xl_offset);
-    error         |= lsm6dsv16x_xl_offset_on_out_set(&RoverImuConfig_DeviceHandle, 1U);
+    /* Calculate accelerometer offset */
+    RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_X] = (int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_X] / (int32_t)xl_samples);
+    RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_Y] = (int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_Y] / (int32_t)xl_samples);
+    RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_Z] = (int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_Z] / (int32_t)xl_samples); /* TODO SD-299 account for gravity */
 
-    /* TODO SD-299 Calculate and write? gyroscope offset */
+    /* Calculate gyroscope offset */
+    RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_X] = (int16_t)(gy_data[ROVER_IMU_CONFIG_AXIS_X] / (int32_t)gy_samples);
+    RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_Y] = (int16_t)(gy_data[ROVER_IMU_CONFIG_AXIS_Y] / (int32_t)gy_samples);
+    RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_Z] = (int16_t)(gy_data[ROVER_IMU_CONFIG_AXIS_Z] / (int32_t)gy_samples);
 
     /* Restore data rate */
     error |= lsm6dsv16x_xl_data_rate_set(&RoverImuConfig_DeviceHandle, xl_data_rate);
@@ -226,7 +251,7 @@ Rover_Error_t RoverImuConfig_Calibrate(void)
 
     if (ROVER_IMU_CONFIG_ERROR_NONE != error)
     {
-        BSP_LOGGER_LOG_ERROR(kRoverImuConfig_LogTag, "Failed to calibrate");
+        BSP_LOGGER_LOG_ERROR(kRoverImuConfig_LogTag, "Calibration failed");
     }
     else
     {
@@ -309,11 +334,19 @@ static Rover_Error_t RoverImuConfig_ReadAll(void)
     if (data_ready.drdy_xl)
     {
         error |= lsm6dsv16x_acceleration_raw_get(&RoverImuConfig_DeviceHandle, RoverImuConfig_RawAccelerometer);
+
+        RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_X] -= RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_X];
+        RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_Y] -= RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_Y];
+        RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_Z] -= RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_Z];
     }
 
     if (data_ready.drdy_gy)
     {
         error |= lsm6dsv16x_angular_rate_raw_get(&RoverImuConfig_DeviceHandle, RoverImuConfig_RawGyroscope);
+
+        RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_X] -= RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_X];
+        RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Y] -= RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_Y];
+        RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Z] -= RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_Z];
     }
 
     return RoverImuConfig_ImuToRoverError(error);

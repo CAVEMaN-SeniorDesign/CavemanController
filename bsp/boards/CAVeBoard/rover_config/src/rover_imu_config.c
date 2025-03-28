@@ -21,6 +21,7 @@
 #define ROVER_IMU_CONFIG_FS2_TO_METERS_PER_SECOND_SQUARED (double)5.985e-4
 #define ROVER_IMU_CONFIG_125DPS_TO_RADIANS_PER_SECOND     (double)6.658e-5
 #define ROVER_IMU_CONFIG_ERROR_NONE                       (int32_t)0
+#define ROVER_IMU_MILLIG_TO_G                             1e3
 
 typedef int32_t RoverImuConfig_Error_t;
 typedef int16_t RoverImuConfig_RawData_t;
@@ -167,6 +168,7 @@ Rover_Error_t RoverImuConfig_Calibrate(void)
     int32_t                    gy_data[ROVER_IMU_CONFIG_AXIS_MAX] = {
         0U
     };
+    int32_t                    gravity_offset = (int32_t)(ROVER_IMU_MILLIG_TO_G / RoverImuConfig_FsToMilliG(1));
     lsm6dsv16x_data_rate_t     xl_data_rate;
     lsm6dsv16x_data_rate_t     gy_data_rate;
     lsm6dsv16x_fifo_xl_batch_t xl_fifo_batch;
@@ -233,7 +235,7 @@ Rover_Error_t RoverImuConfig_Calibrate(void)
     /* Calculate accelerometer offset */
     RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_X] = (int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_X] / (int32_t)xl_samples);
     RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_Y] = (int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_Y] / (int32_t)xl_samples);
-    RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_Z] = (int16_t)(xl_data[ROVER_IMU_CONFIG_AXIS_Z] / (int32_t)xl_samples); /* TODO SD-299 account for gravity */
+    RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_Z] = (int16_t)((xl_data[ROVER_IMU_CONFIG_AXIS_Z] / (int32_t)xl_samples) - gravity_offset);
 
     /* Calculate gyroscope offset */
     RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_X] = (int16_t)(gy_data[ROVER_IMU_CONFIG_AXIS_X] / (int32_t)gy_samples);

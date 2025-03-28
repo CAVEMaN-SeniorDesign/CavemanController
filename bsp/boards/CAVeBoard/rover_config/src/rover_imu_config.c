@@ -117,6 +117,7 @@ Rover_Error_t RoverImuConfig_Initialize(void)
         error                      |= lsm6dsv16x_filt_xl_lp2_bandwidth_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_XL_STRONG);
 
         /* TODO SD-299 calibrate */
+        RoverImuConfig_Calibrate();
     }
 
     if (ROVER_IMU_CONFIG_ERROR_NONE != error)
@@ -133,42 +134,45 @@ Rover_Error_t RoverImuConfig_Initialize(void)
 
 Rover_Error_t RoverImuConfig_Calibrate(void)
 {
-    RoverImuConfig_Error_t    error       = ROVER_IMU_CONFIG_ERROR_NONE;
-    lsm6dsv16x_fifo_status_t  fifo_status = {
+    RoverImuConfig_Error_t     error       = ROVER_IMU_CONFIG_ERROR_NONE;
+    lsm6dsv16x_fifo_status_t   fifo_status = {
         0U
     };
-    uint16_t                  xl_samples                         = 0U;
-    uint16_t                  gy_samples                         = 0U;
-    int32_t                   xl_data[ROVER_IMU_CONFIG_AXIS_MAX] = {
+    uint16_t                   xl_samples                         = 0U;
+    uint16_t                   gy_samples                         = 0U;
+    int32_t                    xl_data[ROVER_IMU_CONFIG_AXIS_MAX] = {
         0U
     };
-    int32_t                   gy_data[ROVER_IMU_CONFIG_AXIS_MAX] = {
+    int32_t                    gy_data[ROVER_IMU_CONFIG_AXIS_MAX] = {
         0U
     };
-    lsm6dsv16x_data_rate_t    xl_data_rate;
-    lsm6dsv16x_data_rate_t    gy_data_rate;
-    lsm6dsv16x_fifo_mode_t    fifo_mode;
-    lsm6dsv16x_xl_offset_mg_t xl_offset;
+    lsm6dsv16x_data_rate_t     xl_data_rate;
+    lsm6dsv16x_data_rate_t     gy_data_rate;
+    lsm6dsv16x_fifo_xl_batch_t xl_fifo_batch;
+    lsm6dsv16x_fifo_gy_batch_t gy_fifo_batch;
+    lsm6dsv16x_fifo_mode_t     fifo_mode;
+    lsm6dsv16x_xl_offset_mg_t  xl_offset;
 
     /* Save existing data rate */
     error |= lsm6dsv16x_xl_data_rate_get(&RoverImuConfig_DeviceHandle, &xl_data_rate);
     error |= lsm6dsv16x_gy_data_rate_get(&RoverImuConfig_DeviceHandle, &gy_data_rate);
-    /* TODO SD-299 Save FIFO batch rate */
+    error |= lsm6dsv16x_fifo_xl_batch_get(&RoverImuConfig_DeviceHandle, &xl_fifo_batch);
+    error |= lsm6dsv16x_fifo_gy_batch_get(&RoverImuConfig_DeviceHandle, &gy_fifo_batch);
 
     /* Save exisitng FIFO mode */
     error |= lsm6dsv16x_fifo_mode_get(&RoverImuConfig_DeviceHandle, &fifo_mode);
 
     /* Set new data rate for calibration period (1s~2s) to fill FIFO */
-    error |= lsm6dsv16x_xl_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_480Hz);
-    error |= lsm6dsv16x_gy_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_480Hz);
-    error |= lsm6dsv16x_fifo_xl_batch_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_XL_BATCHED_AT_480Hz);
-    error |= lsm6dsv16x_fifo_gy_batch_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_GY_BATCHED_AT_480Hz);
+    error |= lsm6dsv16x_xl_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_240Hz);
+    error |= lsm6dsv16x_gy_data_rate_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_ODR_AT_240Hz);
+    error |= lsm6dsv16x_fifo_xl_batch_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_XL_BATCHED_AT_240Hz);
+    error |= lsm6dsv16x_fifo_gy_batch_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_GY_BATCHED_AT_240Hz);
 
     /* Set FIFO to FIFO mode */
     error |= lsm6dsv16x_fifo_mode_set(&RoverImuConfig_DeviceHandle, LSM6DSV16X_FIFO_MODE);
 
     /* Wait until FIFO is full */
-    while (0U == fifo_status.fifo_ovr)
+    while (0U == fifo_status.fifo_full)
     {
         error |= lsm6dsv16x_fifo_status_get(&RoverImuConfig_DeviceHandle, &fifo_status);
     }
@@ -214,8 +218,8 @@ Rover_Error_t RoverImuConfig_Calibrate(void)
     /* Restore data rate */
     error |= lsm6dsv16x_xl_data_rate_set(&RoverImuConfig_DeviceHandle, xl_data_rate);
     error |= lsm6dsv16x_gy_data_rate_set(&RoverImuConfig_DeviceHandle, gy_data_rate);
-
-    /* TODO SD-299 Restore FIFO batch rate */
+    error |= lsm6dsv16x_fifo_xl_batch_set(&RoverImuConfig_DeviceHandle, xl_fifo_batch);
+    error |= lsm6dsv16x_fifo_gy_batch_set(&RoverImuConfig_DeviceHandle, gy_fifo_batch);
 
     /* Restore FIFO mode */
     error |= lsm6dsv16x_fifo_mode_set(&RoverImuConfig_DeviceHandle, fifo_mode);

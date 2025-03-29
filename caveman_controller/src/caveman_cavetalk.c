@@ -24,6 +24,7 @@
 #include "rover_4ws.h"
 #include "rover_4ws_config.h"
 #include "rover_camera.h"
+#include "rover_camera_config.h"
 
 #define CAVEMAN_CAVE_TALK_BUFFER_SIZE  1024U
 #define CAVEMAN_CAVE_TALK_HEADER_SIZE  3U
@@ -50,6 +51,11 @@ static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed,
 static void CavemanCaveTalk_HearCameraMovement(const CaveTalk_Radian_t pan, const CaveTalk_Radian_t tilt);
 static void CavemanCaveTalk_HearLights(const bool headlights);
 static void CavemanCaveTalk_HearArm(const bool arm);
+static void CavemanCaveTalk_HearConfigServoWheels(const cave_talk_Servo *const servo_wheel_0,
+                                                  const cave_talk_Servo *const servo_wheel_1,
+                                                  const cave_talk_Servo *const servo_wheel_2,
+                                                  const cave_talk_Servo *const servo_wheel_3);
+static void CavemanCaveTalk_HearConfigServoCams(const cave_talk_Servo *const servo_cam_pan, const cave_talk_Servo *const servo_cam_tilt);
 static void CavemanCaveTalk_HearConfigMotors(const cave_talk_Motor *const motor_wheel_0,
                                              const cave_talk_Motor *const motor_wheel_1,
                                              const cave_talk_Motor *const motor_wheel_2,
@@ -76,8 +82,8 @@ static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
         .hear_arm                 = CavemanCaveTalk_HearArm,
         .hear_odometry            = NULL,
         .hear_log                 = NULL,
-        .hear_config_servo_wheels = NULL,
-        .hear_config_servo_cams   = NULL,
+        .hear_config_servo_wheels = CavemanCaveTalk_HearConfigServoWheels,
+        .hear_config_servo_cams   = CavemanCaveTalk_HearConfigServoCams,
         .hear_config_motors       = CavemanCaveTalk_HearConfigMotors,
         .hear_config_encoders     = CavemanCaveTalk_HearConfigEncoders,
         .hear_config_log          = CavemanCaveTalk_HearConfigLog,
@@ -258,6 +264,88 @@ static void CavemanCaveTalk_HearArm(const bool arm)
     }
 }
 
+static void CavemanCaveTalk_HearConfigServoWheels(const cave_talk_Servo *const servo_wheel_0,
+                                                  const cave_talk_Servo *const servo_wheel_1,
+                                                  const cave_talk_Servo *const servo_wheel_2,
+                                                  const cave_talk_Servo *const servo_wheel_3)
+{
+    CavemanCaveTalk_HeardMessage("config servo wheels");
+
+    Rover_Error_t error = ROVER_ERROR_NULL;
+
+    if ((NULL != servo_wheel_0) && (NULL != servo_wheel_1) && (NULL != servo_wheel_2) && (NULL != servo_wheel_3))
+    {
+        error = Rover4ws_ErrorCheck(Rover4ws_ConfigureSteering(ROVER_4WS_SERVO_0,
+                                                               servo_wheel_0->min_duty_cycle_percentage,
+                                                               servo_wheel_0->max_duty_cycle_percentage,
+                                                               servo_wheel_0->min_angle_radian,
+                                                               servo_wheel_0->max_angle_radian),
+                                    Rover4ws_ConfigureSteering(ROVER_4WS_SERVO_1,
+                                                               servo_wheel_1->min_duty_cycle_percentage,
+                                                               servo_wheel_1->max_duty_cycle_percentage,
+                                                               servo_wheel_1->min_angle_radian,
+                                                               servo_wheel_1->max_angle_radian),
+                                    Rover4ws_ConfigureSteering(ROVER_4WS_SERVO_2,
+                                                               servo_wheel_2->min_duty_cycle_percentage,
+                                                               servo_wheel_2->max_duty_cycle_percentage,
+                                                               servo_wheel_2->min_angle_radian,
+                                                               servo_wheel_2->max_angle_radian),
+                                    Rover4ws_ConfigureSteering(ROVER_4WS_SERVO_3,
+                                                               servo_wheel_3->min_duty_cycle_percentage,
+                                                               servo_wheel_3->max_duty_cycle_percentage,
+                                                               servo_wheel_3->min_angle_radian,
+                                                               servo_wheel_3->max_angle_radian));
+    }
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to configure wheels servos with error %d", (int)error);
+    }
+    else
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Wheel servos configured");
+    }
+}
+
+static void CavemanCaveTalk_HearConfigServoCams(const cave_talk_Servo *const servo_cam_pan, const cave_talk_Servo *const servo_cam_tilt)
+{
+    CavemanCaveTalk_HeardMessage("config servo cam");
+
+    Rover_Error_t error = ROVER_ERROR_NULL;
+
+    if ((NULL != servo_cam_pan) && (NULL != servo_cam_tilt))
+    {
+        Rover_Error_t pan_config_error = RoverCamera_ConfigureServo(ROVER_CAMERA_CONFIG_SERVO_PAN,
+                                                                    servo_cam_pan->min_duty_cycle_percentage,
+                                                                    servo_cam_pan->max_duty_cycle_percentage,
+                                                                    servo_cam_pan->min_angle_radian,
+                                                                    servo_cam_pan->max_angle_radian);
+        Rover_Error_t tilt_config_error = RoverCamera_ConfigureServo(ROVER_CAMERA_CONFIG_SERVO_TILT,
+                                                                     servo_cam_tilt->min_duty_cycle_percentage,
+                                                                     servo_cam_tilt->max_duty_cycle_percentage,
+                                                                     servo_cam_tilt->min_angle_radian,
+                                                                     servo_cam_tilt->max_angle_radian);
+
+        if (ROVER_ERROR_NONE != pan_config_error)
+        {
+            error = pan_config_error;
+        }
+        else
+        {
+            error = tilt_config_error;
+        }
+    }
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to configure camera servos with error %d", (int)error);
+    }
+    else
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Camera servos configured");
+    }
+}
+
 static void CavemanCaveTalk_HearConfigMotors(const cave_talk_Motor *const motor_wheel_0,
                                              const cave_talk_Motor *const motor_wheel_1,
                                              const cave_talk_Motor *const motor_wheel_2,
@@ -293,11 +381,11 @@ static void CavemanCaveTalk_HearConfigMotors(const cave_talk_Motor *const motor_
 
     if (ROVER_ERROR_NONE != error)
     {
-        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to configure encoders with error %d", (int)error);
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to configure motors with error %d", (int)error);
     }
     else
     {
-        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Encoders configured");
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Motors configured");
     }
 }
 

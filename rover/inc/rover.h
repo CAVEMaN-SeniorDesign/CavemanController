@@ -7,12 +7,12 @@
 
 #define ROVER_DEGREES_TO_RADIANS (double)(3.14159265358979323846 / 180.0)
 
-typedef double Rover_Meter_t;
-typedef double Rover_MetersPerSecond_t;
-typedef double Rover_MetersPerSecondSquared_t;
-typedef double Rover_Radian_t;
-typedef double Rover_RadiansPerSecond_t;
-typedef double RoverImu_AxisCalc_t;
+typedef uint64_t Rover_Microsecond_t;
+typedef double   Rover_Meter_t;
+typedef double   Rover_MetersPerSecond_t;
+typedef double   Rover_MetersPerSecondSquared_t;
+typedef double   Rover_Radian_t;
+typedef double   Rover_RadiansPerSecond_t;
 
 typedef enum
 {

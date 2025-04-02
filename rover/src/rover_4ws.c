@@ -147,7 +147,7 @@ Rover_Error_t Rover4ws_StartMotors(void)
 
 Rover_Error_t Rover4ws_StopMotors(void)
 {
-    BspGpio_Write(BSP_GPIO_USER_PIN_MOTOR_SLEEP, GPIO_PIN_RESET);
+    BspGpio_Write(BSP_GPIO_USER_PIN_MOTOR_SLEEP, BSP_GPIO_STATE_RESET);
 
     return Rover4ws_BspErrorCheck(BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_0]),
                                   BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_2]),

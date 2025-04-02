@@ -6,6 +6,8 @@
 #include "bsp_logger.h"
 #include "bsp_tick.h"
 
+#include "rover.h"
+
 typedef struct
 {
     BspGpioUser_Pin_t pin;
@@ -136,6 +138,15 @@ static void CavemanButtons_StartCallback(const BspGpioUser_Pin_t pin)
     BSP_UNUSED(pin);
 
     BSP_LOGGER_LOG_DEBUG(kCavemanButtons_LogTag, "Start button pressed");
+
+    if (Rover_IsArmed())
+    {
+        (void)Rover_Dearm();
+    }
+    else
+    {
+        (void)Rover_Arm();
+    }
 }
 
 static void CavemanButtons_EnableCallback(const BspGpioUser_Pin_t pin)

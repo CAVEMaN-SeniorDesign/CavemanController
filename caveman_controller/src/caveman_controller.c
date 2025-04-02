@@ -50,9 +50,7 @@ static void Caveman_Initialize(void)
         BSP_LOGGER_LOG_ERROR(kCaveman_LogTag, "Failed to start CAVeTalk");
     }
 
-    CavemanButtons_Enable(CAVEMAN_BUTTONS_BUTTON_HEADLIGHTS);
     CavemanButtons_Enable(CAVEMAN_BUTTONS_BUTTON_START);
-    CavemanButtons_Enable(CAVEMAN_BUTTONS_BUTTON_ENABLE);
 
     BSP_LOGGER_LOG_INFO(kCaveman_LogTag, "Initialized");
 }

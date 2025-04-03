@@ -115,35 +115,39 @@ BspMotor_Handle_t Rover4wsConfig_Motors[ROVER_4WS_MOTOR_MAX] = {
 
 RoverPid_Handle_t Rover4wsConfig_MotorsPid[ROVER_4WS_MOTOR_MAX] = {
     [ROVER_4WS_MOTOR_0] = {
-        .Kp       = 0.0,
-        .Ki       = 0.0,
-        .Kd       = 0.0,
-        .Integral = 0.0,
-        .Error    = 0.0,
-        .Output   = 0.0
+        .kp       = 1.0,
+        .ki       = 0.0,
+        .kd       = 0.0,
+        .integral = 0.0,
+        .command  = 0.0,
+        .error    = 0.0,
+        .output   = 0.0
     },
     [ROVER_4WS_MOTOR_1] = {
-        .Kp       = 0.0,
-        .Ki       = 0.0,
-        .Kd       = 0.0,
-        .Integral = 0.0,
-        .Error    = 0.0,
-        .Output   = 0.0
+        .kp       = 1.0,
+        .ki       = 0.0,
+        .kd       = 0.0,
+        .integral = 0.0,
+        .command  = 0.0,
+        .error    = 0.0,
+        .output   = 0.0
     },
     [ROVER_4WS_MOTOR_2] = {
-        .Kp       = 0.0,
-        .Ki       = 0.0,
-        .Kd       = 0.0,
-        .Integral = 0.0,
-        .Error    = 0.0,
-        .Output   = 0.0
+        .kp       = 1.0,
+        .ki       = 0.0,
+        .kd       = 0.0,
+        .integral = 0.0,
+        .command  = 0.0,
+        .error    = 0.0,
+        .output   = 0.0
     },
     [ROVER_4WS_MOTOR_3] = {
-        .Kp       = 0.0,
-        .Ki       = 0.0,
-        .Kd       = 0.0,
-        .Integral = 0.0,
-        .Error    = 0.0,
-        .Output   = 0.0
+        .kp       = 1.0,
+        .ki       = 0.0,
+        .kd       = 0.0,
+        .integral = 0.0,
+        .command  = 0.0,
+        .error    = 0.0,
+        .output   = 0.0
     }
 };

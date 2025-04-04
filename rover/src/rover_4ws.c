@@ -186,16 +186,37 @@ Rover_Error_t Rover4ws_SampleEncoders(void)
                                   BspEncoder_Sample(BSP_ENCODER_USER_TIMER_3));
 }
 
+Rover_Error_t Rover4ws_EnableSpeedControl(void)
+{
+    return Rover4ws_ErrorCheck(RoverPid_Enable(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_0]),
+                               RoverPid_Enable(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_1]),
+                               RoverPid_Enable(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_2]),
+                               RoverPid_Enable(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_3]));
+}
+
+Rover_Error_t Rover4ws_DisableSpeedControl(void)
+{
+    return Rover4ws_ErrorCheck(RoverPid_Disable(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_0]),
+                               RoverPid_Disable(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_1]),
+                               RoverPid_Disable(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_2]),
+                               RoverPid_Disable(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_3]));
+}
+
 Rover_Error_t Rover4ws_Task(void)
 {
-    Rover_Error_t error = Rover4ws_SampleEncoders();
+    Rover_Error_t error = ROVER_ERROR_NONE;
 
-    if (ROVER_ERROR_NONE == error)
+    if (Rover_IsArmed())
     {
-        error = Rover4ws_ErrorCheck(Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_0),
-                                    Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_1),
-                                    Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_2),
-                                    Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_3));
+        error = Rover4ws_SampleEncoders();
+
+        if (ROVER_ERROR_NONE == error)
+        {
+            error = Rover4ws_ErrorCheck(Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_0),
+                                        Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_1),
+                                        Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_2),
+                                        Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_3));
+        }
     }
 
     return error;

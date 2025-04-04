@@ -21,8 +21,12 @@ void Rover_Initialize(void)
 
 void Rover_Task(void)
 {
-    /* TODO tasks that need to occur repeatedly, e.g. feedback control */
-    (void)Rover4ws_SampleEncoders();
+    Rover_Error_t error = Rover4ws_Task();
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kRover_LogTag, "Task error %d", (int)error);
+    }
 }
 
 Rover_Error_t Rover_BspToRoverError(const Bsp_Error_t bsp_error)

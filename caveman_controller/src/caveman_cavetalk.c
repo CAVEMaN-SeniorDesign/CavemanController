@@ -275,22 +275,22 @@ static void CavemanCaveTalk_HearConfigServoWheels(const cave_talk_Servo *const s
 
     if ((NULL != servo_wheel_0) && (NULL != servo_wheel_1) && (NULL != servo_wheel_2) && (NULL != servo_wheel_3))
     {
-        error = Rover4ws_ErrorCheck(Rover4ws_ConfigureSteering(ROVER_4WS_SERVO_0,
+        error = Rover4ws_ErrorCheck(Rover4ws_ConfigureSteering(ROVER_4WS_CONFIG_SERVO_0,
                                                                servo_wheel_0->min_duty_cycle_percentage,
                                                                servo_wheel_0->max_duty_cycle_percentage,
                                                                servo_wheel_0->min_angle_radian,
                                                                servo_wheel_0->max_angle_radian),
-                                    Rover4ws_ConfigureSteering(ROVER_4WS_SERVO_1,
+                                    Rover4ws_ConfigureSteering(ROVER_4WS_CONFIG_SERVO_1,
                                                                servo_wheel_1->min_duty_cycle_percentage,
                                                                servo_wheel_1->max_duty_cycle_percentage,
                                                                servo_wheel_1->min_angle_radian,
                                                                servo_wheel_1->max_angle_radian),
-                                    Rover4ws_ConfigureSteering(ROVER_4WS_SERVO_2,
+                                    Rover4ws_ConfigureSteering(ROVER_4WS_CONFIG_SERVO_2,
                                                                servo_wheel_2->min_duty_cycle_percentage,
                                                                servo_wheel_2->max_duty_cycle_percentage,
                                                                servo_wheel_2->min_angle_radian,
                                                                servo_wheel_2->max_angle_radian),
-                                    Rover4ws_ConfigureSteering(ROVER_4WS_SERVO_3,
+                                    Rover4ws_ConfigureSteering(ROVER_4WS_CONFIG_SERVO_3,
                                                                servo_wheel_3->min_duty_cycle_percentage,
                                                                servo_wheel_3->max_duty_cycle_percentage,
                                                                servo_wheel_3->min_angle_radian,
@@ -357,22 +357,22 @@ static void CavemanCaveTalk_HearConfigMotors(const cave_talk_Motor *const motor_
 
     if ((NULL != motor_wheel_0) && (NULL != motor_wheel_1) && (NULL != motor_wheel_2) && (NULL != motor_wheel_3))
     {
-        error = Rover4ws_ErrorCheck(Rover4ws_ConfigureMotor(ROVER_4WS_MOTOR_0,
+        error = Rover4ws_ErrorCheck(Rover4ws_ConfigureMotor(ROVER_4WS_CONFIG_MOTOR_0,
                                                             motor_wheel_0->min_duty_cycle_percentage,
                                                             motor_wheel_0->max_duty_cycle_percentage,
                                                             motor_wheel_0->min_speed_loaded_meters_per_second,
                                                             motor_wheel_0->max_speed_loaded_meters_per_second),
-                                    Rover4ws_ConfigureMotor(ROVER_4WS_MOTOR_1,
+                                    Rover4ws_ConfigureMotor(ROVER_4WS_CONFIG_MOTOR_1,
                                                             motor_wheel_1->min_duty_cycle_percentage,
                                                             motor_wheel_1->max_duty_cycle_percentage,
                                                             motor_wheel_1->min_speed_loaded_meters_per_second,
                                                             motor_wheel_1->max_speed_loaded_meters_per_second),
-                                    Rover4ws_ConfigureMotor(ROVER_4WS_MOTOR_2,
+                                    Rover4ws_ConfigureMotor(ROVER_4WS_CONFIG_MOTOR_2,
                                                             motor_wheel_2->min_duty_cycle_percentage,
                                                             motor_wheel_2->max_duty_cycle_percentage,
                                                             motor_wheel_2->min_speed_loaded_meters_per_second,
                                                             motor_wheel_2->max_speed_loaded_meters_per_second),
-                                    Rover4ws_ConfigureMotor(ROVER_4WS_MOTOR_3,
+                                    Rover4ws_ConfigureMotor(ROVER_4WS_CONFIG_MOTOR_3,
                                                             motor_wheel_3->min_duty_cycle_percentage,
                                                             motor_wheel_3->max_duty_cycle_percentage,
                                                             motor_wheel_3->min_speed_loaded_meters_per_second,
@@ -400,10 +400,10 @@ static void CavemanCaveTalk_HearConfigEncoders(const cave_talk_ConfigEncoder *co
 
     if ((NULL != encoder_wheel_0) && (NULL != encoder_wheel_1) && (NULL != encoder_wheel_2) && (NULL != encoder_wheel_3))
     {
-        error = Rover4ws_ErrorCheck(Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_0, encoder_wheel_0->smoothing_factor),
-                                    Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_1, encoder_wheel_1->smoothing_factor),
-                                    Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_2, encoder_wheel_2->smoothing_factor),
-                                    Rover4ws_ConfigureEncoder(ROVER_4WS_MOTOR_3, encoder_wheel_3->smoothing_factor));
+        error = Rover4ws_ErrorCheck(Rover4ws_ConfigureEncoder(ROVER_4WS_CONFIG_MOTOR_0, encoder_wheel_0->smoothing_factor),
+                                    Rover4ws_ConfigureEncoder(ROVER_4WS_CONFIG_MOTOR_1, encoder_wheel_1->smoothing_factor),
+                                    Rover4ws_ConfigureEncoder(ROVER_4WS_CONFIG_MOTOR_2, encoder_wheel_2->smoothing_factor),
+                                    Rover4ws_ConfigureEncoder(ROVER_4WS_CONFIG_MOTOR_3, encoder_wheel_3->smoothing_factor));
     }
 
     if (ROVER_ERROR_NONE != error)

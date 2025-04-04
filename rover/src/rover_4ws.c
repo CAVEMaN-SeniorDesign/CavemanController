@@ -80,6 +80,28 @@ Rover_Error_t Rover4ws_ConfigureMotor(const Rover4wsConfig_Motor_t motor,
     return error;
 }
 
+Rover_Error_t Rover4ws_ConfigureMotorPid(const Rover4wsConfig_Motor_t motor, const double kp, const double ki, const double kd)
+{
+    Rover_Error_t error = ROVER_ERROR_NONE;
+
+    if (motor >= ROVER_4WS_CONFIG_MOTOR_MAX)
+    {
+        error = ROVER_ERROR_PERIPHERAL;
+    }
+    else if (Rover_IsArmed())
+    {
+        error = ROVER_ERROR_MODE;
+    }
+    else
+    {
+        Rover4wsConfig_MotorsPid[motor].kp = kp;
+        Rover4wsConfig_MotorsPid[motor].ki = ki;
+        Rover4wsConfig_MotorsPid[motor].kd = kd;
+    }
+
+    return error;
+}
+
 Rover_Error_t Rover4ws_ConfigureEncoder(const Rover4wsConfig_Motor_t motor, const double smoothing_factor)
 {
     Rover_Error_t error = ROVER_ERROR_PERIPHERAL;

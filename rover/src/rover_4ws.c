@@ -12,6 +12,7 @@
 
 #include "rover.h"
 #include "rover_4ws_config.h"
+#include "rover_pid.h"
 
 #define ROVER_4WS_WHEEL_OFFSET (double)(3.14159265358979323846 / 2.0)
 
@@ -137,22 +138,40 @@ Rover_Error_t Rover4ws_DisableSteering(void)
 
 Rover_Error_t Rover4ws_StartMotors(void)
 {
-    BspGpio_Write(BSP_GPIO_USER_PIN_MOTOR_SLEEP, BSP_GPIO_STATE_SET);
+    Rover_Error_t error = Rover4ws_ErrorCheck(RoverPid_Reset(&Rover4wsConfig_MotorsPid[ROVER_4WS_MOTOR_0]),
+                                              RoverPid_Reset(&Rover4wsConfig_MotorsPid[ROVER_4WS_MOTOR_2]),
+                                              RoverPid_Reset(&Rover4wsConfig_MotorsPid[ROVER_4WS_MOTOR_1]),
+                                              RoverPid_Reset(&Rover4wsConfig_MotorsPid[ROVER_4WS_MOTOR_3]));
 
-    return Rover4ws_BspErrorCheck(BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_0]),
-                                  BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_2]),
-                                  BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_1]),
-                                  BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_3]));
+    if (ROVER_ERROR_NONE == error)
+    {
+        error = BspGpio_Write(BSP_GPIO_USER_PIN_MOTOR_SLEEP, BSP_GPIO_STATE_SET);
+    }
+
+    if (ROVER_ERROR_NONE == error)
+    {
+        error = Rover4ws_BspErrorCheck(BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_0]),
+                                       BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_2]),
+                                       BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_1]),
+                                       BspMotor_Start(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_3]));
+    }
+
+    return error;
 }
 
 Rover_Error_t Rover4ws_StopMotors(void)
 {
-    BspGpio_Write(BSP_GPIO_USER_PIN_MOTOR_SLEEP, BSP_GPIO_STATE_RESET);
+    Rover_Error_t error = BspGpio_Write(BSP_GPIO_USER_PIN_MOTOR_SLEEP, BSP_GPIO_STATE_RESET);
 
-    return Rover4ws_BspErrorCheck(BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_0]),
-                                  BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_2]),
-                                  BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_1]),
-                                  BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_3]));
+    if (ROVER_ERROR_NONE == error)
+    {
+        error = Rover4ws_BspErrorCheck(BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_0]),
+                                       BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_2]),
+                                       BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_1]),
+                                       BspMotor_Stop(&Rover4wsConfig_Motors[ROVER_4WS_MOTOR_3]));
+    }
+
+    return error;
 }
 
 Rover_Error_t Rover4ws_EnableEncoders(void)

@@ -15,7 +15,7 @@ typedef struct
     double error;
     double output;
     Rover_Microsecond_t previous_tick;
-    bool enabled;
+    bool enabled; /* TODO SD-125 feedback enabled */
 } RoverPid_Handle_t;
 
 Rover_Error_t RoverPid_Reset(RoverPid_Handle_t *const handle);

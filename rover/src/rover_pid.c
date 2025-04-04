@@ -1,5 +1,7 @@
 #include "rover_pid.h"
 
+#include "bsp_tick.h"
+
 #include "rover.h"
 
 Rover_Error_t RoverPid_Reset(RoverPid_Handle_t *const handle)
@@ -55,9 +57,9 @@ Rover_Error_t RoverPid_Update(RoverPid_Handle_t *const handle, const double actu
 
     if (NULL != handle)
     {
-        Rover_Microsecond_t delta      = tick - handle->previous_tick; /* TODO convert microseconds to seconds */
-        double              pid_error  = handle->command;
-        double              derivative = (pid_error - handle->error) / delta;
+        double delta      = (double)(tick - handle->previous_tick) / BSP_TICK_MICROSECONDS_PER_SECOND;
+        double pid_error  = handle->command;
+        double derivative = (pid_error - handle->error) / delta;
 
         if (handle->enabled)
         {

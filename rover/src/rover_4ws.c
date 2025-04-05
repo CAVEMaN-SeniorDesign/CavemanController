@@ -17,6 +17,8 @@
 
 #define ROVER_4WS_WHEEL_OFFSET (double)(3.14159265358979323846 / 2.0)
 
+static Rover_MetersPerSecond_t Rover4ws_CommandedSpeed = 0.0;
+
 static void Rover4ws_SetSpeed(const Rover_MetersPerSecond_t speed, const Rover_Radian_t steering_angle);
 static Rover_Error_t Rover4ws_MotorSpeedControl(const Rover4wsConfig_Motor_t motor);
 static Rover_Error_t Rover4ws_SetMotorSpeed(const Rover4wsConfig_Motor_t motor, const Rover_RadiansPerSecond_t speed);
@@ -102,6 +104,25 @@ Rover_Error_t Rover4ws_ConfigureMotorPid(const Rover4wsConfig_Motor_t motor, con
     return error;
 }
 
+Rover_Error_t Rover4ws_ConfigureSteeringPid(const double kp, const double ki, const double kd)
+{
+    Rover_Error_t error = ROVER_ERROR_NONE;
+
+    if (Rover_IsArmed())
+    {
+        error = ROVER_ERROR_MODE;
+    }
+    else
+    {
+        Rover4wsConfig_SteeringPid.kp = kp;
+        Rover4wsConfig_SteeringPid.ki = ki;
+        Rover4wsConfig_SteeringPid.kd = kd;
+    }
+
+    return error;
+}
+
+
 Rover_Error_t Rover4ws_ConfigureEncoder(const Rover4wsConfig_Motor_t motor, const double smoothing_factor)
 {
     Rover_Error_t error = ROVER_ERROR_PERIPHERAL;
@@ -132,10 +153,17 @@ Rover_Error_t Rover4ws_ConfigureEncoder(const Rover4wsConfig_Motor_t motor, cons
 
 Rover_Error_t Rover4ws_EnableSteering(void)
 {
-    return Rover4ws_BspErrorCheck(BspServo_Start(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_0]),
-                                  BspServo_Start(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_2]),
-                                  BspServo_Start(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_1]),
-                                  BspServo_Start(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_3]));
+    Rover_Error_t error = RoverPid_Reset(&Rover4wsConfig_SteeringPid);
+
+    if (ROVER_ERROR_NONE == error)
+    {
+        error = Rover4ws_BspErrorCheck(BspServo_Start(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_0]),
+                                       BspServo_Start(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_2]),
+                                       BspServo_Start(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_1]),
+                                       BspServo_Start(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_3]));
+    }
+
+    return error;
 }
 
 Rover_Error_t Rover4ws_DisableSteering(void)
@@ -152,6 +180,8 @@ Rover_Error_t Rover4ws_StartMotors(void)
                                               RoverPid_Reset(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_2]),
                                               RoverPid_Reset(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_1]),
                                               RoverPid_Reset(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_3]));
+
+    Rover4ws_CommandedSpeed = 0.0;
 
     if (ROVER_ERROR_NONE == error)
     {
@@ -240,10 +270,22 @@ Rover_Error_t Rover4ws_Task(void)
 
     if (Rover_IsArmed())
     {
-        error = Rover4ws_SampleEncoders();
+        Rover_GyroscopeReading_t gyroscope = {
+            .x = 0.0,
+            .y = 0.0,
+            .z = 0.0
+        };
+
+        (void)Rover4ws_SampleEncoders();
+        (void)Rover_ReadGyroscope(&gyroscope);
+
+        /* TODO SD-126 test with steering control coupled and decoupled from wheel speed control */
+        (void)RoverPid_Update(&Rover4wsConfig_SteeringPid, gyroscope.z, BspTick_GetMicroseconds());
+        error = Rover4ws_SetSteeringAngle(Rover4wsConfig_SteeringPid.output);
 
         if (ROVER_ERROR_NONE == error)
         {
+            Rover4ws_SetSpeed(Rover4ws_CommandedSpeed, Rover4wsConfig_SteeringPid.output);
             error = Rover4ws_ErrorCheck(Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_0),
                                         Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_1),
                                         Rover4ws_MotorSpeedControl(ROVER_4WS_CONFIG_MOTOR_2),
@@ -266,9 +308,9 @@ Rover_Error_t Rover4ws_Drive(const Rover_MetersPerSecond_t speed, const Rover_Ra
     else if (0.0 != speed)
     {
         Rover_Radian_t steering_angle = atan((turn_rate * kRover4wsConfig_HalfWheelbase) / speed);
-        error = Rover4ws_SetSteeringAngle(steering_angle);
 
-        Rover4ws_SetSpeed(speed, steering_angle);
+        Rover4ws_CommandedSpeed            = speed;
+        Rover4wsConfig_SteeringPid.command = steering_angle;
     }
 
     return error;

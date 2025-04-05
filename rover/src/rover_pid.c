@@ -28,8 +28,8 @@ Rover_Error_t RoverPid_Enable(RoverPid_Handle_t *const handle)
 
     if (NULL != handle)
     {
-        handle->enabled  = true;
-        handle->integral = 0.0;
+        (void)RoverPid_Reset(handle);
+        handle->enabled = true;
 
         error = ROVER_ERROR_NONE;
     }
@@ -55,16 +55,18 @@ Rover_Error_t RoverPid_Update(RoverPid_Handle_t *const handle, const double actu
 {
     Rover_Error_t error = ROVER_ERROR_NULL;
 
-    if (NULL != handle)
+    if (NULL == handle)
+    {
+    }
+    else if (!handle->enabled)
+    {
+        handle->output = handle->command;
+    }
+    else
     {
         double delta      = (double)(tick - handle->previous_tick) / BSP_TICK_MICROSECONDS_PER_SECOND;
-        double pid_error  = handle->command;
+        double pid_error  = handle->command - actual;
         double derivative = (pid_error - handle->error) / delta;
-
-        if (handle->enabled)
-        {
-            pid_error -= actual;
-        }
 
         handle->integral     += pid_error * delta;
         handle->output        = (handle->kp * pid_error) + (handle->ki * handle->integral) + (handle->kd * derivative);

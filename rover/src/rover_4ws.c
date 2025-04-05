@@ -224,6 +224,16 @@ Rover_Error_t Rover4ws_DisableSpeedControl(void)
                                RoverPid_Disable(&Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_3]));
 }
 
+Rover_Error_t Rover4ws_EnableSteeringControl(void)
+{
+    return RoverPid_Enable(&Rover4wsConfig_SteeringPid);
+}
+
+Rover_Error_t Rover4ws_DisableSteeringControl(void)
+{
+    return RoverPid_Disable(&Rover4wsConfig_SteeringPid);
+}
+
 Rover_Error_t Rover4ws_Task(void)
 {
     Rover_Error_t error = ROVER_ERROR_NONE;

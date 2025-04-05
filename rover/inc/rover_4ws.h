@@ -26,6 +26,8 @@ Rover_Error_t Rover4ws_EnableEncoders(void);
 Rover_Error_t Rover4ws_SampleEncoders(void);
 Rover_Error_t Rover4ws_EnableSpeedControl(void);
 Rover_Error_t Rover4ws_DisableSpeedControl(void);
+Rover_Error_t Rover4ws_EnableSteeringControl(void);
+Rover_Error_t Rover4ws_DisableSteeringControl(void);
 Rover_Error_t Rover4ws_Task(void);
 Rover_Error_t Rover4ws_Drive(const Rover_MetersPerSecond_t speed, const Rover_RadiansPerSecond_t turn_rate);
 Rover_Error_t Rover4ws_ErrorCheck(const Rover_Error_t error_0,

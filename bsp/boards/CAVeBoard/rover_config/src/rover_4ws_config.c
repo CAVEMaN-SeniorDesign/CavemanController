@@ -175,3 +175,17 @@ RoverPid_Handle_t Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_MAX] = {
         .maximum       = 18.75
     }
 };
+
+RoverPid_Handle_t Rover4wsConfig_SteeringPid = {
+    .kp            = 0.0,
+    .ki            = 0.0,
+    .kd            = 0.0,
+    .integral      = 0.0,
+    .command       = 0.0,
+    .error         = 0.0,
+    .output        = 0.0,
+    .previous_tick = 0U,
+    .enabled       = true,
+    .minimum       = -90 * ROVER_DEGREES_TO_RADIANS,
+    .maximum       = 90 * ROVER_DEGREES_TO_RADIANS
+};

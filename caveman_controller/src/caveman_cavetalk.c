@@ -70,6 +70,7 @@ static void CavemanCaveTalk_HearConfigWheelSpeedControl(const cave_talk_PID *con
                                                         const cave_talk_PID *const wheel_2_params,
                                                         const cave_talk_PID *const wheel_3_params,
                                                         const bool enabled);
+static void CavemanCaveTalk_HearConfigSteeringControl(const cave_talk_PID *const turn_rate_params, const bool enabled);
 static void CavemanCaveTalk_SendOdometry(void);
 
 static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
@@ -93,7 +94,7 @@ static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
         .hear_config_encoders            = CavemanCaveTalk_HearConfigEncoders,
         .hear_config_log                 = CavemanCaveTalk_HearConfigLog,
         .hear_config_wheel_speed_control = CavemanCaveTalk_HearConfigWheelSpeedControl,
-        .hear_config_steering_control    = NULL
+        .hear_config_steering_control    = CavemanCaveTalk_HearConfigSteeringControl
     },
 };
 
@@ -478,6 +479,49 @@ static void CavemanCaveTalk_HearConfigWheelSpeedControl(const cave_talk_PID *con
     else
     {
         BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Wheel speed control disabled");
+    }
+}
+
+static void CavemanCaveTalk_HearConfigSteeringControl(const cave_talk_PID *const turn_rate_params, const bool enabled)
+{
+    CavemanCaveTalk_HeardMessage("config steering control");
+
+    Rover_Error_t error = ROVER_ERROR_NULL;
+
+    if (NULL != turn_rate_params)
+    {
+        error = Rover4ws_ConfigureSteeringPid(turn_rate_params->Kp, turn_rate_params->Ki, turn_rate_params->Kd);
+    }
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to configure steering control with error %d", (int)error);
+    }
+    else
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Steering control configured");
+    }
+
+    if (enabled)
+    {
+        error = Rover4ws_EnableSpeedControl();
+    }
+    else
+    {
+        error = Rover4ws_DisableSpeedControl();
+    }
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to enable steering control with error %d", (int)error);
+    }
+    else if (enabled)
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Steering control enabled");
+    }
+    else
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Steering control disabled");
     }
 }
 

@@ -131,7 +131,9 @@ RoverPid_Handle_t Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_MAX] = {
         .error         = 0.0,
         .output        = 0.0,
         .previous_tick = 0U,
-        .enabled       = true
+        .enabled       = true,
+        .minimum       = 0,
+        .maximum       = 18.75
     },
     [ROVER_4WS_CONFIG_MOTOR_1] = {
         .kp            = 1.0,
@@ -142,7 +144,9 @@ RoverPid_Handle_t Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_MAX] = {
         .error         = 0.0,
         .output        = 0.0,
         .previous_tick = 0U,
-        .enabled       = true
+        .enabled       = true,
+        .minimum       = 0,
+        .maximum       = 18.75
     },
     [ROVER_4WS_CONFIG_MOTOR_2] = {
         .kp            = 1.0,
@@ -153,7 +157,9 @@ RoverPid_Handle_t Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_MAX] = {
         .error         = 0.0,
         .output        = 0.0,
         .previous_tick = 0U,
-        .enabled       = true
+        .enabled       = true,
+        .minimum       = 0,
+        .maximum       = 18.75
     },
     [ROVER_4WS_CONFIG_MOTOR_3] = {
         .kp            = 1.0,
@@ -164,6 +170,8 @@ RoverPid_Handle_t Rover4wsConfig_MotorsPid[ROVER_4WS_CONFIG_MOTOR_MAX] = {
         .error         = 0.0,
         .output        = 0.0,
         .previous_tick = 0U,
-        .enabled       = true
+        .enabled       = true,
+        .minimum       = 0,
+        .maximum       = 18.75
     }
 };

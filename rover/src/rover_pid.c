@@ -71,6 +71,15 @@ Rover_Error_t RoverPid_Update(RoverPid_Handle_t *const handle, const double actu
         handle->error         = pid_error;
         handle->previous_tick = tick;
 
+        if (handle->output > handle->maximum)
+        {
+            handle->output = handle->maximum;
+        }
+        else if (handle->output < handle->minimum)
+        {
+            handle->output = handle->minimum;
+        }
+
         error = ROVER_ERROR_NONE;
     }
 

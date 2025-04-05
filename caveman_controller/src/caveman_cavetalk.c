@@ -68,7 +68,8 @@ static void CavemanCaveTalk_HearConfigLog(const cave_talk_LogLevel log_level);
 static void CavemanCaveTalk_HearConfigWheelSpeedControl(const cave_talk_PID *const wheel_0_params,
                                                         const cave_talk_PID *const wheel_1_params,
                                                         const cave_talk_PID *const wheel_2_params,
-                                                        const cave_talk_PID *const wheel_3_params);
+                                                        const cave_talk_PID *const wheel_3_params,
+                                                        const bool enabled);
 static void CavemanCaveTalk_SendOdometry(void);
 
 static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
@@ -433,7 +434,8 @@ static void CavemanCaveTalk_HearConfigLog(const cave_talk_LogLevel log_level)
 static void CavemanCaveTalk_HearConfigWheelSpeedControl(const cave_talk_PID *const wheel_0_params,
                                                         const cave_talk_PID *const wheel_1_params,
                                                         const cave_talk_PID *const wheel_2_params,
-                                                        const cave_talk_PID *const wheel_3_params)
+                                                        const cave_talk_PID *const wheel_3_params,
+                                                        const bool enabled)
 {
     CavemanCaveTalk_HeardMessage("config wheel speed control");
 
@@ -454,6 +456,28 @@ static void CavemanCaveTalk_HearConfigWheelSpeedControl(const cave_talk_PID *con
     else
     {
         BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Wheel speed control configured");
+    }
+
+    if (enabled)
+    {
+        error = Rover4ws_EnableSpeedControl();
+    }
+    else
+    {
+        error = Rover4ws_DisableSpeedControl();
+    }
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Failed to enable wheel speed control with error %d", (int)error);
+    }
+    else if (enabled)
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Wheel speed control enabled");
+    }
+    else
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Wheel speed control disabled");
     }
 }
 

@@ -340,6 +340,10 @@ static Rover_Error_t RoverImuConfig_ReadAll(void)
         RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_X] -= RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_X];
         RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_Y] -= RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_Y];
         RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_Z] -= RoverImuConfig_AccelerometerOffset[ROVER_IMU_CONFIG_AXIS_Z];
+
+        /* Correct for IMU orientation in rover */
+        RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_X] *= -1;
+        RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_Y] *= -1;
     }
 
     if (data_ready.drdy_gy)
@@ -349,6 +353,10 @@ static Rover_Error_t RoverImuConfig_ReadAll(void)
         RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_X] -= RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_X];
         RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Y] -= RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_Y];
         RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Z] -= RoverImuConfig_GyroscopeOffset[ROVER_IMU_CONFIG_AXIS_Z];
+
+        /* Correct for IMU orientation in rover */
+        RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_X] *= -1;
+        RoverImuConfig_RawGyroscope[ROVER_IMU_CONFIG_AXIS_Y] *= -1;
     }
 
     return RoverImuConfig_ImuToRoverError(error);

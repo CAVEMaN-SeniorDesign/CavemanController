@@ -13,6 +13,7 @@
 
 #include "rover.h"
 #include "rover_4ws_config.h"
+#include "rover_imu.h"
 #include "rover_pid.h"
 
 #define ROVER_4WS_WHEEL_OFFSET (double)(3.14159265358979323846 / 2.0)
@@ -277,7 +278,7 @@ Rover_Error_t Rover4ws_Task(void)
         };
 
         (void)Rover4ws_SampleEncoders();
-        (void)Rover_ReadGyroscope(&gyroscope);
+        (void)RoverImu_ReadGyroscope(&gyroscope);
 
         /* TODO SD-126 test with steering control coupled and decoupled from wheel speed control */
         (void)RoverPid_Update(&Rover4wsConfig_SteeringPid, gyroscope.z, BspTick_GetMicroseconds());

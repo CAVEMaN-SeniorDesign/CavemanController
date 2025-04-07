@@ -195,3 +195,19 @@ Rover_Error_t Rover_ReadGyroscope(Rover_GyroscopeReading_t *const reading)
 
     return error;
 }
+
+Rover_Error_t Rover_ReadQuaternion(Rover_Quaternion_t *const quaternion)
+{
+    Rover_Error_t error = RoverImu_ReadQuaternion(quaternion);
+
+    if (ROVER_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kRover_LogTag, "Failed to read quaternion with error %d", (int)error);
+    }
+    else
+    {
+        BSP_LOGGER_LOG_VERBOSE(kRover_LogTag, "Read quaternion w: %lf, x: %lf, y: %lf, z: %lf", quaternion->w, quaternion->x, quaternion->y, quaternion->z);
+    }
+
+    return error;
+}

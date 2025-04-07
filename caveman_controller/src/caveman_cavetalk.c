@@ -557,6 +557,20 @@ static void CavemanCaveTalk_SendOdometry(void)
     imu_message.gyro.yaw_radians_per_second   = gyro_reading.z;
     imu_message.has_gyro                      = true;
 
+    Rover_Quaternion_t quaternion = {
+        .w = 0.0,
+        .x = 0.0,
+        .y = 0.0,
+        .z = 0.0
+    };
+    (void)Rover_ReadQuaternion(&quaternion);
+
+    imu_message.quat.w   = quaternion.w;
+    imu_message.quat.x   = quaternion.x;
+    imu_message.quat.y   = quaternion.y;
+    imu_message.quat.z   = quaternion.z;
+    imu_message.has_quat = true;
+
     encoder_message_0.total_pulses            = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].pulses;
     encoder_message_0.rate_radians_per_second = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_0].angular_rate;
     encoder_message_1.total_pulses            = BspEncoderUser_HandleTable[BSP_ENCODER_USER_TIMER_1].pulses;

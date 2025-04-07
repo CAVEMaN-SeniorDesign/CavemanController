@@ -37,6 +37,14 @@ typedef struct
     Rover_RadiansPerSecond_t z;
 } Rover_GyroscopeReading_t;
 
+typedef struct
+{
+    double w;
+    double x;
+    double y;
+    double z;
+} Rover_Quaternion_t;
+
 void Rover_Initialize(void);
 void Rover_Task(void);
 Rover_Error_t Rover_BspToRoverError(const Bsp_Error_t bsp_error);
@@ -48,5 +56,6 @@ Rover_Error_t Rover_DisableControl(void);
 Rover_Error_t Rover_Drive(const Rover_MetersPerSecond_t speed, const Rover_RadiansPerSecond_t turn_rate);
 Rover_Error_t Rover_ReadAccelerometer(Rover_AccelerometerReading_t *const reading);
 Rover_Error_t Rover_ReadGyroscope(Rover_GyroscopeReading_t *const reading);
+Rover_Error_t Rover_ReadQuaternion(Rover_Quaternion_t *const quaternion);
 
 #endif /* ROVER_H */

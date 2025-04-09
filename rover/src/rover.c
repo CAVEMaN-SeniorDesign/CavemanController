@@ -43,10 +43,12 @@ Rover_Error_t Rover_BspToRoverError(const Bsp_Error_t bsp_error)
     case BSP_ERROR_PERIPHERAL:
         rover_error = ROVER_ERROR_PERIPHERAL;
         break;
+    case BSP_ERROR_VALUE:
+        rover_error = ROVER_ERROR_VALUE;
+        break;
     case BSP_ERROR_HAL:
     case BSP_ERROR_BUSY:
     case BSP_ERROR_TIMEOUT:
-    case BSP_ERROR_VALUE:
     default:
         rover_error = ROVER_ERROR_BSP;
         break;

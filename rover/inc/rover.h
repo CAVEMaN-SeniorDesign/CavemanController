@@ -20,7 +20,8 @@ typedef enum
     ROVER_ERROR_NULL,
     ROVER_ERROR_BSP,
     ROVER_ERROR_PERIPHERAL,
-    ROVER_ERROR_MODE
+    ROVER_ERROR_MODE,
+    ROVER_ERROR_VALUE
 } Rover_Error_t;
 
 typedef struct

@@ -16,7 +16,8 @@
 #include "rover_imu.h"
 #include "rover_pid.h"
 
-#define ROVER_4WS_WHEEL_OFFSET (double)(3.14159265358979323846 / 2.0)
+#define ROVER_4WS_WHEEL_OFFSET     (double)(3.14159265358979323846 / 2.0)
+#define ROVER_4WS_DOUBLE_SIGN_MASK 0x8000000000000000U
 
 static Rover_MetersPerSecond_t Rover4ws_CommandedSpeed = 0.0;
 
@@ -399,17 +400,24 @@ static Rover_Error_t Rover4ws_SetMotorSpeed(const Rover4wsConfig_Motor_t motor, 
 
 static Rover_Error_t Rover4ws_SetSteeringAngle(const Rover_Radian_t steering_angle)
 {
-    double tan_delta        = tan(steering_angle);
-    double scaled_wheelbase = kRover4wsConfig_HalfWheelbase * tan_delta;
-    double offset           = kRover4wsConfig_HalfTread * tan_delta;
+    Rover_Error_t error = ROVER_ERROR_VALUE;
 
-    double delta_left  = atan(scaled_wheelbase / (kRover4wsConfig_HalfWheelbase - offset));
-    double delta_right = atan(scaled_wheelbase / (kRover4wsConfig_HalfWheelbase + offset));
+    double        tan_delta        = tan(steering_angle);
+    Rover_Meter_t scaled_wheelbase = kRover4wsConfig_HalfWheelbase * tan_delta;
+    Rover_Meter_t offset           = kRover4wsConfig_HalfTread * tan_delta;
 
-    return Rover4ws_BspErrorCheck(BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_0], (ROVER_4WS_WHEEL_OFFSET - delta_left)),
-                                  BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_1], (ROVER_4WS_WHEEL_OFFSET - delta_right)),
-                                  BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_2], (ROVER_4WS_WHEEL_OFFSET + delta_left)),
-                                  BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_3], (ROVER_4WS_WHEEL_OFFSET + delta_right)));
+    Rover_Radian_t delta_left  = atan(scaled_wheelbase / (kRover4wsConfig_HalfWheelbase - offset));
+    Rover_Radian_t delta_right = atan(scaled_wheelbase / (kRover4wsConfig_HalfWheelbase + offset));
+
+    if (Rover4ws_CompareDoubleSigns(delta_left, delta_right))
+    {
+        Rover4ws_BspErrorCheck(BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_0], (ROVER_4WS_WHEEL_OFFSET - delta_left)),
+                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_1], (ROVER_4WS_WHEEL_OFFSET - delta_right)),
+                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_2], (ROVER_4WS_WHEEL_OFFSET + delta_left)),
+                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_3], (ROVER_4WS_WHEEL_OFFSET + delta_right)));
+    }
+
+    return error;
 }
 
 static Rover_Error_t Rover4ws_BspErrorCheck(const Bsp_Error_t error_0,
@@ -423,4 +431,9 @@ static Rover_Error_t Rover4ws_BspErrorCheck(const Bsp_Error_t error_0,
     Rover_Error_t rover_error_3 = Rover_BspToRoverError(error_3);
 
     return Rover4ws_ErrorCheck(rover_error_0, rover_error_1, rover_error_2, rover_error_3);
+}
+
+static inline bool Rover4ws_CompareDoubleSigns(const double value_1, const double value_2)
+{
+    return !(bool)((*(uint64_t *)(&value_1) & ROVER_4WS_DOUBLE_SIGN_MASK) ^ (*(uint64_t *)(&value_2) & ROVER_4WS_DOUBLE_SIGN_MASK));
 }

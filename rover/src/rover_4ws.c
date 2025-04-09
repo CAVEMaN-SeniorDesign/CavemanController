@@ -29,6 +29,7 @@ static Rover_Error_t Rover4ws_BspErrorCheck(const Bsp_Error_t error_0,
                                             const Bsp_Error_t error_1,
                                             const Bsp_Error_t error_2,
                                             const Bsp_Error_t error_3);
+static inline bool Rover4ws_CompareDoubleSigns(const double value_1, const double value_2);
 
 Rover_Error_t Rover4ws_ConfigureSteering(const Rover4wsConfig_Servo_t servo,
                                          const Bsp_Percent_t minimum_duty_cycle,

@@ -29,6 +29,7 @@
 #define CAVEMAN_CAVE_TALK_BUFFER_SIZE  1024U
 #define CAVEMAN_CAVE_TALK_HEADER_SIZE  3U
 #define CAVEMAN_CAVE_TALK_RETRY_PERIOD (Bsp_Millisecond_t)1000U
+#define CAVEMAN_CAVE_TALK_RESET_DELAY  (Bsp_Millisecond_t)5U
 
 typedef enum
 {
@@ -44,6 +45,7 @@ static Bsp_Millisecond_t CavemanCaveTalk_PreviousMessage = 0U;
 
 static CaveTalk_Error_t CavemanCaveTalk_Send(const void *const data, const size_t size);
 static CaveTalk_Error_t CavemanCaveTalk_Receive(void *const data, const size_t size, size_t *const bytes_received);
+static CaveTalk_Error_t CavemanCaveTalk_Reset(void);
 static CaveTalk_Error_t CavemanCaveTalk_ConvertBspError(const Bsp_Error_t bsp_error);
 static inline void CavemanCaveTalk_HeardMessage(const char *const log);
 static void CavemanCaveTalk_HearOogaBooga(const cave_talk_Say ooga_booga);
@@ -71,7 +73,9 @@ static void CavemanCaveTalk_HearConfigWheelSpeedControl(const cave_talk_PID *con
                                                         const cave_talk_PID *const wheel_3_params,
                                                         const bool enabled);
 static void CavemanCaveTalk_HearConfigSteeringControl(const cave_talk_PID *const turn_rate_params, const bool enabled);
+static void CavemanCaveTalk_HearReset(const bool reset);
 static void CavemanCaveTalk_SendOdometry(void);
+static void CavemanCaveTalk_SendReset(void);
 
 static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
     .link_handle = {
@@ -94,7 +98,8 @@ static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
         .hear_config_encoders            = CavemanCaveTalk_HearConfigEncoders,
         .hear_config_log                 = CavemanCaveTalk_HearConfigLog,
         .hear_config_wheel_speed_control = CavemanCaveTalk_HearConfigWheelSpeedControl,
-        .hear_config_steering_control    = CavemanCaveTalk_HearConfigSteeringControl
+        .hear_config_steering_control    = CavemanCaveTalk_HearConfigSteeringControl,
+        .hear_reset                      = CavemanCaveTalk_HearReset,
     },
 };
 
@@ -109,6 +114,24 @@ void CavemanCaveTalk_Task(void)
     if (CAVE_TALK_ERROR_NONE != error)
     {
         BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Hear error: %d", (int)error);
+
+        switch (error)
+        {
+        case CAVE_TALK_ERROR_INCOMPLETE:
+        case CAVE_TALK_ERROR_VERSION:
+        case CAVE_TALK_ERROR_ID:
+        case CAVE_TALK_ERROR_PARSE:
+            (void)CavemanCaveTalk_SendReset();
+            break;
+        case CAVE_TALK_ERROR_NONE:
+        case CAVE_TALK_ERROR_NULL:
+        case CAVE_TALK_ERROR_SIZE:
+        case CAVE_TALK_ERROR_SOCKET_CLOSED:
+        case CAVE_TALK_ERROR_CRC:
+        case CAVE_TALK_ERROR_SPEAK_DISABLED:
+        default:
+            break;
+        }
     }
 
     Bsp_Millisecond_t tick = BspTick_GetTick();
@@ -141,6 +164,29 @@ static CaveTalk_Error_t CavemanCaveTalk_Send(const void *const data, const size_
 static CaveTalk_Error_t CavemanCaveTalk_Receive(void *const data, const size_t size, size_t *const bytes_received)
 {
     return CavemanCaveTalk_ConvertBspError(BspUart_Receive(BSP_UART_USER_COMMS, data, size, bytes_received));
+}
+
+static CaveTalk_Error_t CavemanCaveTalk_Reset(void)
+{
+    CaveTalk_Error_t error = CavemanCaveTalk_ConvertBspError(BspUart_Stop(BSP_UART_USER_COMMS));
+
+    if (CAVE_TALK_ERROR_NONE == error)
+    {
+        error = CavemanCaveTalk_ConvertBspError(BspUart_Start(BSP_UART_USER_COMMS));
+    }
+
+    if (CAVE_TALK_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Reset error: %d", (int)error);
+
+        (void)Rover_Dearm();
+    }
+    else
+    {
+        BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Reset");
+    }
+
+    return error;
 }
 
 static CaveTalk_Error_t CavemanCaveTalk_ConvertBspError(const Bsp_Error_t bsp_error)
@@ -525,6 +571,16 @@ static void CavemanCaveTalk_HearConfigSteeringControl(const cave_talk_PID *const
     }
 }
 
+static void CavemanCaveTalk_HearReset(const bool reset)
+{
+    CavemanCaveTalk_HeardMessage("reset");
+
+    if (reset)
+    {
+        (void)CavemanCaveTalk_Reset();
+    }
+}
+
 static void CavemanCaveTalk_SendOdometry(void)
 {
     cave_talk_Imu     imu_message       = cave_talk_Imu_init_zero;
@@ -588,5 +644,31 @@ static void CavemanCaveTalk_SendOdometry(void)
     else
     {
         BSP_LOGGER_LOG_VERBOSE(kCavemanCaveTalk_LogTag, "Spoke odometry");
+    }
+}
+
+static void CavemanCaveTalk_SendReset(void)
+{
+    CaveTalk_Error_t error = CaveTalk_SpeakReset(&CavemanCaveTalk_Handle, true);
+    if (CAVE_TALK_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Speak reset true error: %d", (int)error);
+    }
+    else
+    {
+        Bsp_Delay(CAVEMAN_CAVE_TALK_RESET_DELAY);
+
+        (void)CavemanCaveTalk_Reset();
+
+        error = CaveTalk_SpeakReset(&CavemanCaveTalk_Handle, false);
+
+        if (CAVE_TALK_ERROR_NONE != error)
+        {
+            BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Speak reset false error: %d", (int)error);
+        }
+        else
+        {
+            BSP_LOGGER_LOG_INFO(kCavemanCaveTalk_LogTag, "Spoke reset");
+        }
     }
 }

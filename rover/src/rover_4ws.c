@@ -412,10 +412,10 @@ static Rover_Error_t Rover4ws_SetSteeringAngle(const Rover_Radian_t steering_ang
 
     if (Rover4ws_CompareDoubleSigns(delta_left, delta_right))
     {
-        Rover4ws_BspErrorCheck(BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_0], (ROVER_4WS_WHEEL_OFFSET - delta_left)),
-                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_1], (ROVER_4WS_WHEEL_OFFSET - delta_right)),
-                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_2], (ROVER_4WS_WHEEL_OFFSET + delta_left)),
-                               BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_3], (ROVER_4WS_WHEEL_OFFSET + delta_right)));
+        error = Rover4ws_BspErrorCheck(BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_0], (ROVER_4WS_WHEEL_OFFSET - delta_left)),
+                                       BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_1], (ROVER_4WS_WHEEL_OFFSET - delta_right)),
+                                       BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_2], (ROVER_4WS_WHEEL_OFFSET + delta_left)),
+                                       BspServo_SetAngle(&Rover4wsConfig_Servos[ROVER_4WS_CONFIG_SERVO_3], (ROVER_4WS_WHEEL_OFFSET + delta_right)));
     }
 
     return error;

@@ -73,7 +73,7 @@ static stmdev_ctx_t RoverImuConfig_DeviceHandle = {
     .write_reg = RoverImuConfig_Write,
     .read_reg  = RoverImuConfig_Read,
     .mdelay    = Bsp_Delay,
-    .handle    = &hspi2,
+    .handle    = &hspi1,
 };
 
 static RoverImuConfig_RawData_t RoverImuConfig_RawAccelerometer[ROVER_IMU_CONFIG_AXIS_MAX] = {

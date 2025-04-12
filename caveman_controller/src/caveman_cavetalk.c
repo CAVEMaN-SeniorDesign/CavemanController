@@ -26,9 +26,10 @@
 #include "rover_camera.h"
 #include "rover_camera_config.h"
 
-#define CAVEMAN_CAVE_TALK_BUFFER_SIZE  1024U
-#define CAVEMAN_CAVE_TALK_HEADER_SIZE  3U
-#define CAVEMAN_CAVE_TALK_RETRY_PERIOD (Bsp_Millisecond_t)1000U
+#define CAVEMAN_CAVE_TALK_BUFFER_SIZE     1024U
+#define CAVEMAN_CAVE_TALK_HEADER_SIZE     3U
+#define CAVEMAN_CAVE_TALK_RETRY_PERIOD    (Bsp_Millisecond_t)1000U
+#define CAVEMAN_CAVE_TALK_ODOMETRY_PERIOD (Bsp_Millisecond_t)10U
 
 typedef enum
 {
@@ -37,10 +38,11 @@ typedef enum
 } CavemanCaveTalk_Receive_t;
 
 static uint8_t           CavemanCaveTalk_Buffer[CAVEMAN_CAVE_TALK_BUFFER_SIZE];
-static const char *      kCavemanCaveTalk_LogTag         = "CAVE TALK";
-static bool              CavemanCaveTalk_Connected       = false;
-static bool              CavemanCaveTalk_WasArmed        = false;
-static Bsp_Millisecond_t CavemanCaveTalk_PreviousMessage = 0U;
+static const char *      kCavemanCaveTalk_LogTag          = "CAVE TALK";
+static bool              CavemanCaveTalk_Connected        = false;
+static bool              CavemanCaveTalk_WasArmed         = false;
+static Bsp_Millisecond_t CavemanCaveTalk_PreviousMessage  = 0U;
+static Bsp_Millisecond_t CavemanCaveTalk_PreviousOdometry = 0U;
 
 static CaveTalk_Error_t CavemanCaveTalk_Send(const void *const data, const size_t size);
 static CaveTalk_Error_t CavemanCaveTalk_Receive(void *const data, const size_t size, size_t *const bytes_received);
@@ -72,6 +74,7 @@ static void CavemanCaveTalk_HearConfigWheelSpeedControl(const cave_talk_PID *con
                                                         const bool enabled);
 static void CavemanCaveTalk_HearConfigSteeringControl(const cave_talk_PID *const turn_rate_params, const bool enabled);
 static void CavemanCaveTalk_SendOdometry(void);
+static void CavemanCaveTalk_SendAirQuality(void);
 
 static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
     .link_handle = {
@@ -94,7 +97,8 @@ static CaveTalk_Handle_t CavemanCaveTalk_Handle = {
         .hear_config_encoders            = CavemanCaveTalk_HearConfigEncoders,
         .hear_config_log                 = CavemanCaveTalk_HearConfigLog,
         .hear_config_wheel_speed_control = CavemanCaveTalk_HearConfigWheelSpeedControl,
-        .hear_config_steering_control    = CavemanCaveTalk_HearConfigSteeringControl
+        .hear_config_steering_control    = CavemanCaveTalk_HearConfigSteeringControl,
+        .hear_air_quality                = NULL,
     },
 };
 
@@ -130,6 +134,17 @@ void CavemanCaveTalk_Task(void)
         BSP_LOGGER_LOG_DEBUG(kCavemanCaveTalk_LogTag, "Connecting");
         (void)CaveTalk_SpeakOogaBooga(&CavemanCaveTalk_Handle, cave_talk_Say_SAY_OOGA);
         CavemanCaveTalk_PreviousMessage = tick;
+    }
+
+    if ((tick - CavemanCaveTalk_PreviousOdometry) > CAVEMAN_CAVE_TALK_ODOMETRY_PERIOD)
+    {
+        if (CavemanCaveTalk_Connected)
+        {
+            CavemanCaveTalk_SendOdometry();
+            CavemanCaveTalk_SendAirQuality();
+        }
+
+        CavemanCaveTalk_PreviousOdometry = tick;
     }
 }
 
@@ -210,7 +225,6 @@ static void CavemanCaveTalk_HearMovement(const CaveTalk_MetersPerSecond_t speed,
     CavemanCaveTalk_HeardMessage("movement");
 
     (void)Rover_Drive(speed, turn_rate);
-    CavemanCaveTalk_SendOdometry();
 }
 
 static void CavemanCaveTalk_HearCameraMovement(const CaveTalk_Radian_t pan, const CaveTalk_Radian_t tilt)
@@ -589,4 +603,8 @@ static void CavemanCaveTalk_SendOdometry(void)
     {
         BSP_LOGGER_LOG_VERBOSE(kCavemanCaveTalk_LogTag, "Spoke odometry");
     }
+}
+
+static void CavemanCaveTalk_SendAirQuality(void)
+{
 }

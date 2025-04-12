@@ -20,6 +20,7 @@
 #include "bsp_uart.h"
 #include "bsp_uart_user.h"
 
+#include "caveman_dust_sensor.h"
 #include "rover.h"
 #include "rover_4ws.h"
 #include "rover_4ws_config.h"
@@ -599,12 +600,14 @@ static void CavemanCaveTalk_SendOdometry(void)
     {
         BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Speak odometry error: %d", (int)error);
     }
-    else
-    {
-        BSP_LOGGER_LOG_VERBOSE(kCavemanCaveTalk_LogTag, "Spoke odometry");
-    }
 }
 
 static void CavemanCaveTalk_SendAirQuality(void)
 {
+    /* TODO SD-349 */
+    CaveTalk_Error_t error = CaveTalk_SpeakAirQuality(&CavemanCaveTalk_Handle, (uint32_t)CavemanDustSensor_Read(), 0U);
+    if (CAVE_TALK_ERROR_NONE != error)
+    {
+        BSP_LOGGER_LOG_ERROR(kCavemanCaveTalk_LogTag, "Speak air quality error: %d", (int)error);
+    }
 }

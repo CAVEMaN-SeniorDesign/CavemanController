@@ -8,7 +8,7 @@
 
 #define BSP_ADC_USER_ADC_1_CHANNELS 6U
 
-static uint32_t         BspAdcUser_Adc1Buffer[BSP_ADC_USER_ADC_1_CHANNELS];
+static Bsp_AdcReading_t BspAdcUser_Adc1Buffer[BSP_ADC_USER_ADC_1_CHANNELS];
 static Bsp_AdcReading_t BspAdcUser_Adc1ShadowBuffer[BSP_ADC_USER_ADC_1_CHANNELS];
 
 Bsp_Adc_t BspAdcUser_HandleTable[BSP_ADC_USER_ADC_MAX] = {

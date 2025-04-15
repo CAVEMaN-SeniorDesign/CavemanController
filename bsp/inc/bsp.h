@@ -79,7 +79,7 @@ typedef enum
 struct Bsp_Adc
 {
     Bsp_AdcHandle_t *adc_handle;
-    uint32_t *buffer;
+    uint16_t *buffer;
     uint16_t *shadow_buffer;
     uint8_t channels;
 };

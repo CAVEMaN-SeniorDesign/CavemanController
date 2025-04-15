@@ -17,7 +17,8 @@ Bsp_Error_t BspAdc_Start(const BspAdcUser_Adc_t adc)
     {
         BspAdcUser_HandleTable[adc].adc_handle->ConvCpltCallback = BspAdc_ConversionCompleteCallback;
 
-        error = (Bsp_Error_t)HAL_ADC_Start_DMA(BspAdcUser_HandleTable[adc].adc_handle, BspAdcUser_HandleTable[adc].buffer, BspAdcUser_HandleTable[adc].channels);
+        /* DMA data width is set to half word (uint16_t), but cast buffer to uint32_t to match prototype */
+        error = (Bsp_Error_t)HAL_ADC_Start_DMA(BspAdcUser_HandleTable[adc].adc_handle, (uint32_t*)BspAdcUser_HandleTable[adc].buffer, BspAdcUser_HandleTable[adc].channels);
     }
 
     return error;

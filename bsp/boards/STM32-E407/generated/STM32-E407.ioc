@@ -1,9 +1,10 @@
 #MicroXplorer Configuration settings - do not modify
 ADC3.Channel-2\#ChannelRegularConversion=ADC_CHANNEL_15
+ADC3.ClockPrescaler=ADC_CLOCK_SYNC_PCLK_DIV8
 ADC3.ContinuousConvMode=ENABLE
 ADC3.DMAContinuousRequests=ENABLE
 ADC3.EOCSelection=ADC_EOC_SEQ_CONV
-ADC3.IPParameters=Rank-2\#ChannelRegularConversion,Channel-2\#ChannelRegularConversion,SamplingTime-2\#ChannelRegularConversion,NbrOfConversionFlag,ScanConvMode,ContinuousConvMode,DMAContinuousRequests,EOCSelection
+ADC3.IPParameters=Rank-2\#ChannelRegularConversion,Channel-2\#ChannelRegularConversion,SamplingTime-2\#ChannelRegularConversion,NbrOfConversionFlag,ScanConvMode,ContinuousConvMode,DMAContinuousRequests,EOCSelection,ClockPrescaler
 ADC3.NbrOfConversionFlag=1
 ADC3.Rank-2\#ChannelRegularConversion=1
 ADC3.SamplingTime-2\#ChannelRegularConversion=ADC_SAMPLETIME_3CYCLES

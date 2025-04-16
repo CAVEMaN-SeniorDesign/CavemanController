@@ -8,7 +8,7 @@
 
 #define BSP_ADC_USER_ADC_1_CHANNELS 1U
 
-static Bsp_AdcReading_t BspAdcUser_Adc1Buffer[BSP_ADC_USER_ADC_1_CHANNELS];
+static Bsp_AdcReading_t BspAdcUser_Adc1Buffer[BSP_ADC_USER_ADC_1_CHANNELS * 4096U]; /* TODO SD-349 set large buffer to reduce interrupt frequency */
 static Bsp_AdcReading_t BspAdcUser_Adc1ShadowBuffer[BSP_ADC_USER_ADC_1_CHANNELS];
 
 Bsp_Adc_t BspAdcUser_HandleTable[BSP_ADC_USER_ADC_MAX] = {

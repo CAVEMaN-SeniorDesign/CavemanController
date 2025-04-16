@@ -18,6 +18,7 @@ typedef int64_t  Bsp_EncoderPulse_t;
 typedef int32_t  Bsp_EncoderPeriod_t; /* Must not exceed 4 bytes for atomic read/write */
 typedef uint16_t Bsp_GpioPin_t;
 typedef uint16_t Bsp_AdcReading_t;
+typedef double   Bsp_Volt_t;
 
 typedef ADC_HandleTypeDef  Bsp_AdcHandle_t;
 typedef GPIO_TypeDef       Bsp_GpioPort_t;
